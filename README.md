@@ -17,6 +17,7 @@ Ce projet est un compilateur pour le langage de programmation Jnane, un langage 
 - Les namespaces utilisent une notation pointée (ex: `math.operations`)
 - Les fonctions dans un namespace sont stockées dans une structure de répertoires correspondant à chaque segment du namespace
   - Exemple: une fonction `math.operations:add` serait définie dans le fichier `math/operations/add.jn`
+- L'annotation `@name` dans l'en-tête du fichier doit inclure le namespace complet, par exemple `@name math.operations:add`
 
 ## Structure du projet
 
@@ -61,6 +62,26 @@ Pour analyser un répertoire contenant des fichiers Jnane organisés par namespa
 
 ```bash
 java -jar target/jnane-compiler-1.0-SNAPSHOT-jar-with-dependencies.jar --dir repertoire
+```
+
+## Exemple de fichier Jnane
+
+```
+// Fonction d'addition dans le namespace math.operations
+
+@name math.operations:add
+@arg x Entier
+@arg y Entier
+@field resultat Entier
+
+{
+    // Implémentation simple de l'addition
+    resultat = x + y;
+    
+    return {
+        resultat: resultat
+    };
+}
 ```
 
 ## Fonctionnalités actuelles

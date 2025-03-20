@@ -1,6 +1,6 @@
 // Fonction pour transformer un état dans le namespace state.transformer
 
-@name transform
+@name state.transformer:transform
 @arg[description="État à transformer"] etat Etat
 @arg[description="Fonction de transformation"] transformation Fonction<Etat, Etat>
 @field resultat Etat

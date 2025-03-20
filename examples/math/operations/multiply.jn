@@ -1,6 +1,6 @@
 // Fonction de multiplication dans le namespace math.operations
 
-@name multiply
+@name math.operations:multiply
 @arg x Entier
 @arg y Entier
 @field resultat Entier

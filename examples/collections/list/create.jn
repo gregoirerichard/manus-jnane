@@ -1,6 +1,6 @@
 // Fonction pour créer une nouvelle liste dans le namespace collections.list
 
-@name create
+@name collections.list:create
 @arg[description="Éléments initiaux de la liste"] elements Liste<Any>
 @field resultat Liste<Any>
 @view elements Liste<Any>

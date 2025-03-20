@@ -1,6 +1,6 @@
 // Fonction d'addition dans le namespace math.operations
 
-@name add
+@name math.operations:add
 @arg x Entier
 @arg y Entier
 @field resultat Entier
