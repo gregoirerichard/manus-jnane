@@ -71,11 +71,11 @@ annotationParamValue
 
 annotationValue
     : ID                  // Identifiant simple (ex: @name MaFonction)
-    | type                // Type (ex: @arg nom Chaine)
+    | typeExpr            // Type (ex: @arg nom Chaine)
     | STRING              // Chaîne de caractères (ex: @description "Description")
     | multilineString     // Chaîne multiligne (ex: @example ```code```)
-    | ID type             // Identifiant et type (ex: @arg nom Chaine)
-    | ID type whereClause // Identifiant, type et clause where (ex: @arg age Entier where age >= 0)
+    | ID typeExpr         // Identifiant et type (ex: @arg nom Chaine)
+    | ID typeExpr whereClause // Identifiant, type et clause where (ex: @arg age Entier where age >= 0)
     ;
 
 whereClause
@@ -128,7 +128,7 @@ typeElement
     ;
 
 typeField
-    : fieldAnnotations ID type (EQUALS defaultValue)?
+    : fieldAnnotations ID typeExpr (EQUALS defaultValue)?
     ;
 
 fieldAnnotations
@@ -136,7 +136,7 @@ fieldAnnotations
     ;
 
 typeView
-    : AT 'view' ID type typeViewBody?
+    : AT 'view' ID typeExpr typeViewBody?
     ;
 
 typeViewBody
@@ -157,11 +157,11 @@ typeMethod
     ;
 
 methodSignature
-    : LPAREN methodParam? (COMMA methodParam)* RPAREN (ARROW_RIGHT type)?
+    : LPAREN methodParam? (COMMA methodParam)* RPAREN (ARROW_RIGHT typeExpr)?
     ;
 
 methodParam
-    : ID COLON type
+    : ID COLON typeExpr
     ;
 
 methodBody
@@ -172,66 +172,58 @@ defaultValue
     : literal
     | objectLiteral
     | arrayLiteral
-    | functionCall
+    | functionCallExpr
     ;
 
-// Types
-type
-    : simpleType
-    | genericType
-    | unionType
-    | functionType
-    | whereType
-    | tupleType
-    | recordType
-    | optionalType
+// Types - Restructuré pour éliminer la récursivité à gauche
+typeExpr
+    : simpleTypeExpr typeExprSuffix*
     ;
 
-simpleType
+typeExprSuffix
+    : PIPE simpleTypeExpr  // unionType
+    | 'where' expression   // whereType
+    | QUESTION_MARK        // optionalType
+    ;
+
+simpleTypeExpr
     : ID                      // Type simple (ex: Entier, Chaine)
     | namespaceId COLON ID    // Type qualifié par namespace (ex: collections:Liste)
+    | genericTypeExpr
+    | functionTypeExpr
+    | tupleTypeExpr
+    | recordTypeExpr
+    | 'Option' LESS_THAN typeExpr GREATER_THAN  // optionalType
+    | LPAREN typeExpr RPAREN
     ;
 
-genericType
+genericTypeExpr
     : ID LESS_THAN typeList GREATER_THAN
     ;
 
-unionType
-    : type PIPE type (PIPE type)*
+functionTypeExpr
+    : 'Fonction' LESS_THAN typeList COMMA typeExpr GREATER_THAN
     ;
 
-functionType
-    : 'Fonction' LESS_THAN typeList COMMA type GREATER_THAN
-    ;
-
-whereType
-    : type 'where' expression
-    ;
-
-tupleType
+tupleTypeExpr
     : 'Tuple' LESS_THAN typeList GREATER_THAN
     ;
 
-recordType
+recordTypeExpr
     : LBRACE recordTypeField (COMMA recordTypeField)* RBRACE
     ;
 
 recordTypeField
-    : ID COLON type
-    ;
-
-optionalType
-    : 'Option' LESS_THAN type GREATER_THAN
-    | type QUESTION_MARK
+    : ID COLON typeExpr
     ;
 
 typeList
-    : type (COMMA type)*
+    : typeExpr (COMMA typeExpr)*
     ;
 
 // Type alias
 typeAlias
-    : AT 'alias' ID EQUALS type
+    : AT 'alias' ID EQUALS typeExpr
     ;
 
 // Enum type
@@ -240,7 +232,7 @@ enumType
     ;
 
 enumValue
-    : ID (LPAREN type RPAREN)?
+    : ID (LPAREN typeExpr RPAREN)?
     ;
 
 // ==================== NAMESPACES ====================
@@ -293,7 +285,7 @@ namespaceAlias
 // ==================== VUES ET LENTILLES ====================
 
 viewDecl
-    : AT 'view' ID type viewBody?
+    : AT 'view' ID typeExpr viewBody?
     ;
 
 viewBody
@@ -355,7 +347,7 @@ lensExpr
     ;
 
 // ==================== EXPRESSIONS ET STATEMENTS ====================
-// Expressions
+// Expressions - Restructuré pour éliminer la récursivité à gauche
 expression
     : assignmentExpr
     ;
@@ -420,7 +412,7 @@ postfixOp
 primaryExpr
     : literal
     | ID
-    | functionCall
+    | functionCallExpr
     | objectLiteral
     | arrayLiteral
     | LPAREN expression RPAREN
@@ -428,8 +420,8 @@ primaryExpr
     | lensOperation
     ;
 
-// Appel de fonction
-functionCall
+// Appel de fonction - Restructuré pour éliminer la récursivité à gauche
+functionCallExpr
     : namespaceId COLON ID LPAREN argumentList? RPAREN
     | ID LPAREN argumentList? RPAREN
     ;
