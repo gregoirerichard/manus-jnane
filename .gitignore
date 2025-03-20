@@ -1,0 +1,45 @@
+# Fichiers générés par Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# Fichiers générés par ANTLR
+src/main/java/com/causallang/compiler/CausalLangLexer.java
+src/main/java/com/causallang/compiler/CausalLangParser.java
+src/main/java/com/causallang/compiler/CausalLangParserBaseListener.java
+src/main/java/com/causallang/compiler/CausalLangParserBaseVisitor.java
+src/main/java/com/causallang/compiler/CausalLangParserListener.java
+src/main/java/com/causallang/compiler/CausalLangParserVisitor.java
+
+# Fichiers générés par les IDE
+.idea/
+*.iml
+*.iws
+*.ipr
+.classpath
+.project
+.settings/
+.vscode/
+*.swp
+*.swo
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+
+# Fichiers de log
+*.log
+logs/
+
+# Fichiers temporaires
+*.tmp
+*.bak
+*.swp
+*~.nib
