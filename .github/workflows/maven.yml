@@ -32,12 +32,12 @@ jobs:
         java -jar target/jnane-compiler-1.0-SNAPSHOT-jar-with-dependencies.jar --dir examples > target/examples-analysis/analysis-results.txt || echo "Example analysis completed with warnings"
     
     - name: Archive analysis results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v2
       with:
         name: examples-analysis-results
         path: target/examples-analysis/
         
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v2
       with:
         fail_ci_if_error: false
