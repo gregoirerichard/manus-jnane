@@ -1,0 +1,30 @@
+// Fonction pour transformer un état dans le namespace state.transformer
+
+@name transform
+@arg[description="État à transformer"] etat Etat
+@arg[description="Fonction de transformation"] transformation Fonction<Etat, Etat>
+@field resultat Etat
+@view historique Liste<Etat>
+
+{
+    // Application de la transformation à l'état
+    nouvel_etat = transformation(etat);
+    
+    // Création d'un setter pour conserver l'historique
+    resultat = {
+        original: etat,
+        courant: nouvel_etat,
+        modifications: [
+            {
+                timestamp: ns:instant_courant(),
+                description: "Transformation appliquée",
+                ancien: etat,
+                nouveau: nouvel_etat
+            }
+        ]
+    };
+    
+    return {
+        resultat: resultat
+    };
+}

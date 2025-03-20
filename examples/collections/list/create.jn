@@ -1,0 +1,15 @@
+// Fonction pour créer une nouvelle liste dans le namespace collections.list
+
+@name create
+@arg[description="Éléments initiaux de la liste"] elements Liste<Any>
+@field resultat Liste<Any>
+@view elements Liste<Any>
+
+{
+    // Création d'une nouvelle liste avec les éléments fournis
+    resultat = elements;
+    
+    return {
+        resultat: resultat
+    };
+}

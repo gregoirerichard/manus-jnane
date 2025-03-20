@@ -1,17 +1,17 @@
 package com.causallang.compiler;
 
+import java.io.IOException;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
-import java.io.IOException;
 
 /**
- * Classe principale mise à jour pour utiliser le nouveau visiteur AST.
+ * Classe principale du compilateur pour le langage Jnane.
  */
 public class Main {
     
     public static void main(String[] args) {
         if (args.length < 1) {
-            System.err.println("Usage: java -jar causal-lang-compiler.jar <fichier.causal>");
+            System.err.println("Usage: java -jar jnane-compiler.jar <fichier.jn>");
             System.exit(1);
         }
         
@@ -20,9 +20,9 @@ public class Main {
         try {
             // Création du lexer et du parser
             CharStream input = CharStreams.fromFileName(inputFile);
-            CausalLangLexer lexer = new CausalLangLexer(input);
+            JnaneLangLexer lexer = new JnaneLangLexer(input);
             CommonTokenStream tokens = new CommonTokenStream(lexer);
-            CausalLangParser parser = new CausalLangParser(tokens);
+            JnaneLangParser parser = new JnaneLangParser(tokens);
             
             // Configuration du gestionnaire d'erreurs
             parser.removeErrorListeners();
@@ -48,7 +48,7 @@ public class Main {
             
             // Utilisation du visiteur simple pour afficher les éléments visités
             System.out.println("\nParcours de l'arbre syntaxique:");
-            CausalLangVisitorImpl visitor = new CausalLangVisitorImpl();
+            JnaneLangVisitorImpl visitor = new JnaneLangVisitorImpl();
             visitor.visit(tree);
             
             System.out.println("\nAnalyse syntaxique terminée avec succès.");

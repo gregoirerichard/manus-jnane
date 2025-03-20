@@ -1,0 +1,15 @@
+// Fonction de multiplication dans le namespace math.operations
+
+@name multiply
+@arg x Entier
+@arg y Entier
+@field resultat Entier
+
+{
+    // Implémentation simple de la multiplication
+    resultat = x * y;
+    
+    return {
+        resultat: resultat
+    };
+}

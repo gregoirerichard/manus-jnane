@@ -1,0 +1,15 @@
+// Fonction d'addition dans le namespace math.operations
+
+@name add
+@arg x Entier
+@arg y Entier
+@field resultat Entier
+
+{
+    // Implémentation simple de l'addition
+    resultat = x + y;
+    
+    return {
+        resultat: resultat
+    };
+}

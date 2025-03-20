@@ -8,15 +8,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Implémentation améliorée du visiteur pour l'AST du langage Causal.
+ * Implémentation améliorée du visiteur pour l'AST du langage Jnane.
  * Cette classe construit un AST structuré en utilisant la classe ASTNode.
  */
-public class ASTBuilderVisitor extends AbstractParseTreeVisitor<ASTNode> implements CausalLangVisitor {
+public class ASTBuilderVisitor extends AbstractParseTreeVisitor<ASTNode> implements JnaneLangVisitor {
 
     // Méthode par défaut pour visiter les nœuds
     @Override
     public ASTNode visitChildren(RuleNode node) {
-        String ruleName = CausalLangParser.ruleNames[node.getRuleContext().getRuleIndex()];
+        String ruleName = JnaneLangParser.ruleNames[node.getRuleContext().getRuleIndex()];
         ASTNode result = new ASTNode(ruleName);
         
         int n = node.getChildCount();
@@ -32,10 +32,10 @@ public class ASTBuilderVisitor extends AbstractParseTreeVisitor<ASTNode> impleme
 
     // Visite du programme
     @Override
-    public ASTNode visitProgram(CausalLangParser.ProgramContext ctx) {
+    public ASTNode visitProgram(JnaneLangParser.ProgramContext ctx) {
         ASTNode programNode = new ASTNode("Program");
         
-        for (CausalLangParser.DeclarationContext declCtx : ctx.declaration()) {
+        for (JnaneLangParser.DeclarationContext declCtx : ctx.declaration()) {
             ASTNode declNode = visit(declCtx);
             if (declNode != null) {
                 programNode.addChild(declNode);
@@ -47,13 +47,13 @@ public class ASTBuilderVisitor extends AbstractParseTreeVisitor<ASTNode> impleme
 
     // Visite des déclarations
     @Override
-    public ASTNode visitDeclaration(CausalLangParser.DeclarationContext ctx) {
+    public ASTNode visitDeclaration(JnaneLangParser.DeclarationContext ctx) {
         return visitChildren(ctx);
     }
 
     // Visite des annotations
     @Override
-    public ASTNode visitAnnotationDecl(CausalLangParser.AnnotationDeclContext ctx) {
+    public ASTNode visitAnnotationDecl(JnaneLangParser.AnnotationDeclContext ctx) {
         Token startToken = ctx.getStart();
         ASTNode annotationNode = new ASTNode("Annotation", startToken.getLine(), startToken.getCharPositionInLine());
         
@@ -81,10 +81,10 @@ public class ASTBuilderVisitor extends AbstractParseTreeVisitor<ASTNode> impleme
 
     // Visite des paramètres d'annotation
     @Override
-    public ASTNode visitAnnotationParams(CausalLangParser.AnnotationParamsContext ctx) {
+    public ASTNode visitAnnotationParams(JnaneLangParser.AnnotationParamsContext ctx) {
         ASTNode paramsNode = new ASTNode("AnnotationParams");
         
-        for (CausalLangParser.AnnotationParamContext paramCtx : ctx.annotationParam()) {
+        for (JnaneLangParser.AnnotationParamContext paramCtx : ctx.annotationParam()) {
             ASTNode paramNode = visit(paramCtx);
             if (paramNode != null) {
                 paramsNode.addChild(paramNode);
@@ -96,7 +96,7 @@ public class ASTBuilderVisitor extends AbstractParseTreeVisitor<ASTNode> impleme
 
     // Visite d'un paramètre d'annotation
     @Override
-    public ASTNode visitAnnotationParam(CausalLangParser.AnnotationParamContext ctx) {
+    public ASTNode visitAnnotationParam(JnaneLangParser.AnnotationParamContext ctx) {
         ASTNode paramNode = new ASTNode("AnnotationParam");
         paramNode.setAttribute("name", ctx.ID().getText());
         
@@ -110,7 +110,7 @@ public class ASTBuilderVisitor extends AbstractParseTreeVisitor<ASTNode> impleme
 
     // Visite des déclarations de fonction
     @Override
-    public ASTNode visitFunctionDecl(CausalLangParser.FunctionDeclContext ctx) {
+    public ASTNode visitFunctionDecl(JnaneLangParser.FunctionDeclContext ctx) {
         Token startToken = ctx.getStart();
         ASTNode functionNode = new ASTNode("Function", startToken.getLine(), startToken.getCharPositionInLine());
         
@@ -131,7 +131,7 @@ public class ASTBuilderVisitor extends AbstractParseTreeVisitor<ASTNode> impleme
 
     // Visite des déclarations de type
     @Override
-    public ASTNode visitTypeDecl(CausalLangParser.TypeDeclContext ctx) {
+    public ASTNode visitTypeDecl(JnaneLangParser.TypeDeclContext ctx) {
         Token startToken = ctx.getStart();
         ASTNode typeNode = new ASTNode("Type", startToken.getLine(), startToken.getCharPositionInLine());
         
@@ -157,7 +157,7 @@ public class ASTBuilderVisitor extends AbstractParseTreeVisitor<ASTNode> impleme
 
     // Visite des déclarations de namespace
     @Override
-    public ASTNode visitNamespaceDecl(CausalLangParser.NamespaceDeclContext ctx) {
+    public ASTNode visitNamespaceDecl(JnaneLangParser.NamespaceDeclContext ctx) {
         Token startToken = ctx.getStart();
         ASTNode namespaceNode = new ASTNode("Namespace", startToken.getLine(), startToken.getCharPositionInLine());
         
@@ -179,7 +179,7 @@ public class ASTBuilderVisitor extends AbstractParseTreeVisitor<ASTNode> impleme
 
     // Visite des identifiants de namespace
     @Override
-    public ASTNode visitNamespaceId(CausalLangParser.NamespaceIdContext ctx) {
+    public ASTNode visitNamespaceId(JnaneLangParser.NamespaceIdContext ctx) {
         ASTNode namespaceIdNode = new ASTNode("NamespaceId");
         
         StringBuilder nameBuilder = new StringBuilder();
@@ -196,7 +196,7 @@ public class ASTBuilderVisitor extends AbstractParseTreeVisitor<ASTNode> impleme
 
     // Visite des importations
     @Override
-    public ASTNode visitImportDecl(CausalLangParser.ImportDeclContext ctx) {
+    public ASTNode visitImportDecl(JnaneLangParser.ImportDeclContext ctx) {
         Token startToken = ctx.getStart();
         ASTNode importNode = new ASTNode("Import", startToken.getLine(), startToken.getCharPositionInLine());
         
@@ -215,7 +215,7 @@ public class ASTBuilderVisitor extends AbstractParseTreeVisitor<ASTNode> impleme
 
     // Visite des chemins d'importation
     @Override
-    public ASTNode visitImportPath(CausalLangParser.ImportPathContext ctx) {
+    public ASTNode visitImportPath(JnaneLangParser.ImportPathContext ctx) {
         ASTNode pathNode = new ASTNode("ImportPath");
         
         ASTNode namespaceIdNode = visit(ctx.namespaceId());
@@ -234,13 +234,13 @@ public class ASTBuilderVisitor extends AbstractParseTreeVisitor<ASTNode> impleme
 
     // Visite des expressions
     @Override
-    public ASTNode visitExpression(CausalLangParser.ExpressionContext ctx) {
+    public ASTNode visitExpression(JnaneLangParser.ExpressionContext ctx) {
         return visitChildren(ctx);
     }
 
     // Visite des littéraux
     @Override
-    public ASTNode visitLiteral(CausalLangParser.LiteralContext ctx) {
+    public ASTNode visitLiteral(JnaneLangParser.LiteralContext ctx) {
         Token startToken = ctx.getStart();
         ASTNode literalNode = new ASTNode("Literal", startToken.getLine(), startToken.getCharPositionInLine());
         
@@ -272,7 +272,7 @@ public class ASTBuilderVisitor extends AbstractParseTreeVisitor<ASTNode> impleme
 
     // Visite des instructions return
     @Override
-    public ASTNode visitReturnStmt(CausalLangParser.ReturnStmtContext ctx) {
+    public ASTNode visitReturnStmt(JnaneLangParser.ReturnStmtContext ctx) {
         Token startToken = ctx.getStart();
         ASTNode returnNode = new ASTNode("Return", startToken.getLine(), startToken.getCharPositionInLine());
         
@@ -286,7 +286,7 @@ public class ASTBuilderVisitor extends AbstractParseTreeVisitor<ASTNode> impleme
 
     // Visite des instructions if
     @Override
-    public ASTNode visitIfStmt(CausalLangParser.IfStmtContext ctx) {
+    public ASTNode visitIfStmt(JnaneLangParser.IfStmtContext ctx) {
         Token startToken = ctx.getStart();
         ASTNode ifNode = new ASTNode("If", startToken.getLine(), startToken.getCharPositionInLine());
         
@@ -324,7 +324,7 @@ public class ASTBuilderVisitor extends AbstractParseTreeVisitor<ASTNode> impleme
 
     // Visite des instructions match
     @Override
-    public ASTNode visitMatchStmt(CausalLangParser.MatchStmtContext ctx) {
+    public ASTNode visitMatchStmt(JnaneLangParser.MatchStmtContext ctx) {
         Token startToken = ctx.getStart();
         ASTNode matchNode = new ASTNode("Match", startToken.getLine(), startToken.getCharPositionInLine());
         
@@ -335,7 +335,7 @@ public class ASTBuilderVisitor extends AbstractParseTreeVisitor<ASTNode> impleme
         }
         
         // Cas de match
-        for (CausalLangParser.MatchCaseContext caseCtx : ctx.matchCase()) {
+        for (JnaneLangParser.MatchCaseContext caseCtx : ctx.matchCase()) {
             ASTNode caseNode = visit(caseCtx);
             if (caseNode != null) {
                 matchNode.addChild(caseNode);
@@ -347,7 +347,7 @@ public class ASTBuilderVisitor extends AbstractParseTreeVisitor<ASTNode> impleme
 
     // Visite des cas de match
     @Override
-    public ASTNode visitMatchCase(CausalLangParser.MatchCaseContext ctx) {
+    public ASTNode visitMatchCase(JnaneLangParser.MatchCaseContext ctx) {
         ASTNode caseNode = new ASTNode("MatchCase");
         
         // Pattern
