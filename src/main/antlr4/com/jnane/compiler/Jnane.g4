@@ -1,6 +1,6 @@
 // Grammaire ANTLR v4 complète pour le langage de programmation de réseaux causaux
 
-grammar CausalLang;
+grammar Jnane;
 
 // Point d'entrée de la grammaire
 program
@@ -351,241 +351,281 @@ lensOperation
 lensExpr
     : ID
     | lensDefinition
-    ;
-
-// Syntaxe fluide et opérateurs pour lentilles
-fluidLensOperation
-    : expression PIPE_FORWARD 'ns:modifier' LPAREN lensExpr COMMA expression RPAREN
-    | expression PIPE_FORWARD 'ns:transformer' LPAREN lensExpr COMMA lambdaExpr RPAREN
-    ;
-
-lensOperatorAccess
-    : expression AT_GREATER lensExpr
-    ;
-
-lensOperatorModify
-    : expression AT_GREATER lensExpr COLON_EQUALS expression
-    ;
-
-lensOperatorTransform
-    : expression AT_GREATER lensExpr COLON_TILDE expression
-    ;
-
-// ==================== EXPRESSIONS ET STATEMENTS ====================
-
-// Expressions
-expression
-    : assignmentExpr
-    | conditionalExpr
-    | logicalOrExpr
-    | pipeExpr
-    | viewOperation
     | lensOperation
-    | fluidLensOperation
-    | lensOperatorAccess
-    | lensOperatorModify
-    | lensOperatorTransform
-    ;
-
-// Assignation
-assignmentExpr
-    : ID (COLON type)? EQUALS expression
-    ;
-
-// Expression conditionnelle (ternaire)
-conditionalExpr
-    : logicalOrExpr (QUESTION logicalOrExpr COLON logicalOrExpr)?
-    ;
-
-// Opérateurs logiques
-logicalOrExpr
-    : logicalAndExpr (OR logicalAndExpr)*
-    ;
-
-logicalAndExpr
-    : equalityExpr (AND equalityExpr)*
-    ;
-
-equalityExpr
-    : relationalExpr ((EQUALS_EQUALS | NOT_EQUALS) relationalExpr)*
-    ;
-
-relationalExpr
-    : additiveExpr ((LESS_THAN | GREATER_THAN | LESS_EQUALS | GREATER_EQUALS) additiveExpr)*
-    ;
-
-// Opérateurs arithmétiques
-additiveExpr
-    : multiplicativeExpr ((PLUS | MINUS) multiplicativeExpr)*
-    ;
-
-multiplicativeExpr
-    : unaryExpr ((MULTIPLY | DIVIDE | MODULO) unaryExpr)*
-    ;
-
-// Expressions unaires
-unaryExpr
-    : (NOT | MINUS) unaryExpr
-    | primaryExpr
-    ;
-
-// Expression de pipeline
-pipeExpr
-    : primaryExpr (PIPE_FORWARD primaryExpr)*
-    ;
-
-// Expressions primaires
-primaryExpr
-    : literal
-    | ID
     | functionCall
-    | objectAccess
-    | objectLiteral
-    | arrayLiteral
-    | LPAREN expression RPAREN
+    ;
+
+// ==================== EXPRESSIONS ====================
+
+expression
+    : literal                                                 # LiteralExpr
+    | ID                                                      # IdentifierExpr
+    | THIS                                                    # ThisExpr
+    | SUPER                                                   # SuperExpr
+    | LPAREN expression RPAREN                                # ParenExpr
+    | expression DOT ID                                       # MemberAccessExpr
+    | expression LBRACK expression RBRACK                     # IndexAccessExpr
+    | functionCall                                            # FunctionCallExpr
+    | viewOperation                                           # ViewOperationExpr
+    | lensOperation                                           # LensOperationExpr
+    | objectLiteral                                           # ObjectLiteralExpr
+    | arrayLiteral                                            # ArrayLiteralExpr
+    | lambdaExpr                                              # LambdaExprExpr
+    | expression op=(PLUS | MINUS | STAR | SLASH | PERCENT) expression # BinaryExpr
+    | expression op=(EQUALS_EQUALS | NOT_EQUALS | LESS_THAN | LESS_THAN_EQUALS | GREATER_THAN | GREATER_THAN_EQUALS) expression # ComparisonExpr
+    | expression op=(AND | OR) expression                     # LogicalExpr
+    | op=(NOT | MINUS) expression                             # UnaryExpr
+    | expression QUESTION_MARK expression COLON expression    # TernaryExpr
+    | expression AS type                                      # CastExpr
+    | expression IS type                                      # TypeCheckExpr
+    | expression PIPE_GREATER expression                      # PipeExpr
+    | MATCH expression LBRACE matchCase+ RBRACE               # MatchExpr
+    | IF expression THEN expression ELSE expression           # InlineIfExpr
+    | LET ID EQUALS expression IN expression                  # LetExpr
+    | DO LBRACE statement+ RBRACE                             # DoExpr
+    | TRY expression CATCH LPAREN ID RPAREN expression        # TryExpr
+    | THROW expression                                        # ThrowExpr
+    | AWAIT expression                                        # AwaitExpr
+    | ASYNC expression                                        # AsyncExpr
     ;
 
 // Appel de fonction
 functionCall
-    : namespaceId COLON ID LPAREN argumentList? RPAREN
-    | ID LPAREN argumentList? RPAREN
-    ;
-
-argumentList
-    : expression (COMMA expression)*
-    ;
-
-// Accès aux champs d'un objet
-objectAccess
-    : primaryExpr DOT ID
-    | primaryExpr LBRACK expression RBRACK
-    ;
-
-// Littéral d'objet
-objectLiteral
-    : LBRACE objectField (COMMA objectField)* RBRACE
-    | LBRACE RBRACE
-    ;
-
-objectField
-    : ID COLON expression
-    | ELLIPSIS expression
-    ;
-
-// Littéral de tableau
-arrayLiteral
-    : LBRACK expression (COMMA expression)* RBRACK
-    | LBRACK RBRACK
-    ;
-
-// Expression lambda
-lambdaExpr
-    : ID ARROW_RIGHT expression
-    | LPAREN paramList? RPAREN ARROW_RIGHT expression
-    | LPAREN paramList? RPAREN ARROW_RIGHT blockStmt
-    ;
-
-paramList
-    : ID (COMMA ID)*
-    ;
-
-// Instructions
-statement
-    : expressionStmt
-    | returnStmt
-    | ifStmt
-    | matchStmt
-    | blockStmt
-    ;
-
-expressionStmt
-    : expression SEMICOLON?
-    ;
-
-returnStmt
-    : 'return' expression SEMICOLON?
-    ;
-
-ifStmt
-    : 'if' expression blockStmt ('else' (ifStmt | blockStmt))?
-    ;
-
-matchStmt
-    : 'match' expression LBRACE matchCase+ RBRACE
-    ;
-
-matchCase
-    : pattern ARROW_RIGHT statement
-    ;
-
-pattern
-    : ID ID? (ARROW_RIGHT ID)?
-    | literal
-    | UNDERSCORE
-    ;
-
-blockStmt
-    : LBRACE statement* RBRACE
+    : namespaceId COLON ID LPAREN (expression (COMMA expression)*)? RPAREN
+    | ID LPAREN (expression (COMMA expression)*)? RPAREN
+    | expression DOT ID LPAREN (expression (COMMA expression)*)? RPAREN
     ;
 
 // Littéraux
 literal
-    : INTEGER
-    | DECIMAL
-    | STRING
-    | BOOLEAN
-    | NULL
+    : INT                                                     # IntLiteral
+    | FLOAT                                                   # FloatLiteral
+    | STRING                                                  # StringLiteral
+    | multilineString                                         # MultilineStringLiteral
+    | BOOLEAN                                                 # BooleanLiteral
+    | NULL                                                    # NullLiteral
+    | UNDEFINED                                               # UndefinedLiteral
     ;
 
-// ==================== TOKENS LEXICAUX ====================
+// Littéral objet
+objectLiteral
+    : LBRACE (objectProperty (COMMA objectProperty)*)? RBRACE
+    ;
 
-// Symboles
-AT : '@';
+objectProperty
+    : ID COLON expression
+    | STRING COLON expression
+    | LBRACK expression RBRACK COLON expression
+    | SPREAD expression
+    ;
+
+// Littéral tableau
+arrayLiteral
+    : LBRACK (expression (COMMA expression)*)? RBRACK
+    ;
+
+// Expression lambda
+lambdaExpr
+    : LPAREN (ID (COMMA ID)*)? RPAREN ARROW_RIGHT expression
+    | LPAREN (ID COLON type (COMMA ID COLON type)*)? RPAREN ARROW_RIGHT (type)? LBRACE statement* RBRACE
+    | ID ARROW_RIGHT expression
+    ;
+
+// Cas de pattern matching
+matchCase
+    : pattern ARROW_RIGHT expression
+    ;
+
+pattern
+    : literal                                                 # LiteralPattern
+    | ID                                                      # IdentifierPattern
+    | UNDERSCORE                                              # WildcardPattern
+    | ID AT pattern                                           # BindingPattern
+    | namespaceId COLON ID LPAREN pattern (COMMA pattern)* RPAREN # ConstructorPattern
+    | LBRACE (ID COLON pattern (COMMA ID COLON pattern)*)? RBRACE # ObjectPattern
+    | LBRACK (pattern (COMMA pattern)*)? RBRACK               # ArrayPattern
+    | pattern PIPE pattern                                    # OrPattern
+    | pattern AND pattern                                     # AndPattern
+    | pattern IF expression                                   # GuardPattern
+    ;
+
+// ==================== STATEMENTS ====================
+
+statement
+    : variableDecl SEMICOLON?                                 # VariableDeclStmt
+    | expression SEMICOLON?                                   # ExpressionStmt
+    | assignmentStmt SEMICOLON?                               # AssignmentStatement
+    | returnStmt SEMICOLON?                                   # ReturnStatement
+    | ifStmt                                                  # IfStatement
+    | matchStmt                                               # MatchStatement
+    | forStmt                                                 # ForStatement
+    | whileStmt                                               # WhileStatement
+    | doWhileStmt SEMICOLON?                                  # DoWhileStatement
+    | blockStmt                                               # BlockStatement
+    | breakStmt SEMICOLON?                                    # BreakStatement
+    | continueStmt SEMICOLON?                                 # ContinueStatement
+    | throwStmt SEMICOLON?                                    # ThrowStatement
+    | tryStmt                                                 # TryStatement
+    ;
+
+// Déclaration de variable
+variableDecl
+    : LET ID (COLON type)? (EQUALS expression)?
+    | CONST ID (COLON type)? EQUALS expression
+    ;
+
+// Affectation
+assignmentStmt
+    : ID EQUALS expression
+    | ID op=(PLUS_EQUALS | MINUS_EQUALS | STAR_EQUALS | SLASH_EQUALS | PERCENT_EQUALS) expression
+    | expression DOT ID EQUALS expression
+    | expression LBRACK expression RBRACK EQUALS expression
+    ;
+
+// Return
+returnStmt
+    : RETURN expression?
+    ;
+
+// If
+ifStmt
+    : IF LPAREN expression RPAREN statement (ELSE statement)?
+    | IF expression statement (ELSE statement)?
+    ;
+
+// Match
+matchStmt
+    : MATCH expression LBRACE matchCase+ RBRACE
+    ;
+
+// For
+forStmt
+    : FOR LPAREN variableDecl SEMICOLON expression SEMICOLON expression RPAREN statement
+    | FOR LPAREN LET ID IN expression RPAREN statement
+    | FOR LPAREN LET ID OF expression RPAREN statement
+    ;
+
+// While
+whileStmt
+    : WHILE LPAREN expression RPAREN statement
+    ;
+
+// Do-While
+doWhileStmt
+    : DO statement WHILE LPAREN expression RPAREN
+    ;
+
+// Block
+blockStmt
+    : LBRACE statement* RBRACE
+    ;
+
+// Break
+breakStmt
+    : BREAK
+    ;
+
+// Continue
+continueStmt
+    : CONTINUE
+    ;
+
+// Throw
+throwStmt
+    : THROW expression
+    ;
+
+// Try-Catch-Finally
+tryStmt
+    : TRY blockStmt catchClause? finallyClause?
+    ;
+
+catchClause
+    : CATCH LPAREN ID (COLON type)? RPAREN blockStmt
+    ;
+
+finallyClause
+    : FINALLY blockStmt
+    ;
+
+// ==================== LEXER RULES ====================
+
+// Mots-clés
+LET : 'let';
+CONST : 'const';
+IF : 'if';
+ELSE : 'else';
+THEN : 'then';
+MATCH : 'match';
+FOR : 'for';
+WHILE : 'while';
+DO : 'do';
+BREAK : 'break';
+CONTINUE : 'continue';
+RETURN : 'return';
+FUNCTION : 'function';
+IN : 'in';
+OF : 'of';
+AS : 'as';
+IS : 'is';
+TRY : 'try';
+CATCH : 'catch';
+FINALLY : 'finally';
+THROW : 'throw';
+ASYNC : 'async';
+AWAIT : 'await';
+THIS : 'this';
+SUPER : 'super';
+NULL : 'null';
+UNDEFINED : 'undefined';
+
+// Opérateurs
+PLUS : '+';
+MINUS : '-';
+STAR : '*';
+SLASH : '/';
+PERCENT : '%';
+EQUALS : '=';
+PLUS_EQUALS : '+=';
+MINUS_EQUALS : '-=';
+STAR_EQUALS : '*=';
+SLASH_EQUALS : '/=';
+PERCENT_EQUALS : '%=';
+EQUALS_EQUALS : '==';
+NOT_EQUALS : '!=';
+LESS_THAN : '<';
+LESS_THAN_EQUALS : '<=';
+GREATER_THAN : '>';
+GREATER_THAN_EQUALS : '>=';
+AND : '&&';
+OR : '||';
+NOT : '!';
+QUESTION_MARK : '?';
+ARROW_RIGHT : '=>';
+PIPE : '|';
+PIPE_GREATER : '|>';
+SPREAD : '...';
+
+// Délimiteurs
+LPAREN : '(';
+RPAREN : ')';
 LBRACE : '{';
 RBRACE : '}';
 LBRACK : '[';
 RBRACK : ']';
-LPAREN : '(';
-RPAREN : ')';
 SEMICOLON : ';';
 COLON : ':';
 COMMA : ',';
 DOT : '.';
-EQUALS : '=';
-EQUALS_EQUALS : '==';
-NOT_EQUALS : '!=';
-LESS_THAN : '<';
-GREATER_THAN : '>';
-LESS_EQUALS : '<=';
-GREATER_EQUALS : '>=';
-PLUS : '+';
-MINUS : '-';
-MULTIPLY : '*';
-DIVIDE : '/';
-MODULO : '%';
-AND : '&&';
-OR : '||';
-NOT : '!';
-QUESTION : '?';
-QUESTION_MARK : '?';
-PIPE : '|';
-PIPE_FORWARD : '|>';
-ARROW_RIGHT : '=>';
-AT_GREATER : '@>';
-COLON_EQUALS : ':=';
-COLON_TILDE : ':~';
+AT : '@';
 UNDERSCORE : '_';
-ELLIPSIS : '...';
-AS : 'as';
-STAR : '*';
-TRIPLE_QUOTE : '```';
 
 // Littéraux
-INTEGER : [0-9]+;
-DECIMAL : [0-9]+ '.' [0-9]+;
-STRING : '"' (~["\r\n] | '\\"')* '"';
-BOOLEAN : 'Vrai' | 'Faux';
-NULL : 'Vide';
+BOOLEAN : 'true' | 'false';
+INT : [0-9]+ | '0x' [0-9a-fA-F]+ | '0b' [01]+ | '0o' [0-7]+;
+FLOAT : [0-9]+ '.' [0-9]* | '.' [0-9]+;
+STRING : '"' (~["\\\r\n] | '\\' .)* '"' | '\'' (~['\\\r\n] | '\\' .)* '\'';
+TRIPLE_QUOTE : '```';
 
 // Identifiants
 ID : [a-zA-Z_][a-zA-Z0-9_]*;
