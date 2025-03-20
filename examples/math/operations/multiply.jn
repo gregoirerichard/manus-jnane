@@ -8,8 +8,4 @@
 {
     // Implémentation simple de la multiplication
     resultat = x * y;
-    
-    return {
-        resultat: resultat
-    };
 }

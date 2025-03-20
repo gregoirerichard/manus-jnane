@@ -8,8 +8,4 @@
 {
     // Création d'une nouvelle liste avec les éléments fournis
     resultat = elements;
-    
-    return {
-        resultat: resultat
-    };
 }

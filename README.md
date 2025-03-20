@@ -18,6 +18,7 @@ Ce projet est un compilateur pour le langage de programmation Jnane, un langage 
 - Les fonctions dans un namespace sont stockées dans une structure de répertoires correspondant à chaque segment du namespace
   - Exemple: une fonction `math.operations:add` serait définie dans le fichier `math/operations/add.jn`
 - L'annotation `@name` dans l'en-tête du fichier doit inclure le namespace complet, par exemple `@name math.operations:add`
+- Le bloc `return` est inutile car la structure du résultat est définie par les annotations `@field` et `@view` dans l'en-tête
 
 ## Structure du projet
 
@@ -29,6 +30,8 @@ Ce projet est un compilateur pour le langage de programmation Jnane, un langage 
   - `ASTBuilderVisitor.java` : Visiteur qui construit un AST structuré
   - `ASTNode.java` : Représentation des nœuds de l'AST
   - `JnaneFileLoader.java` : Utilitaire pour charger les fichiers Jnane selon la structure des namespaces
+  - `JnaneTypeChecker.java` : Vérification des types et des variables évaluables
+  - `JnaneFunctionLoader.java` : Chargement des fonctions et détection des cycles de dépendances
   - `Main.java` : Point d'entrée du compilateur
 - `examples/` : Exemples de code Jnane organisés par namespaces
   - `math/operations/` : Fonctions mathématiques de base
@@ -52,13 +55,13 @@ Cela générera un fichier JAR exécutable dans le répertoire `target/`.
 
 ## Utilisation
 
-Pour analyser un fichier Jnane :
+Pour analyser un fichier Jnane individuel :
 
 ```bash
 java -jar target/jnane-compiler-1.0-SNAPSHOT-jar-with-dependencies.jar fichier.jn
 ```
 
-Pour analyser un répertoire contenant des fichiers Jnane organisés par namespaces :
+Pour analyser un répertoire complet contenant des fichiers Jnane organisés par namespaces :
 
 ```bash
 java -jar target/jnane-compiler-1.0-SNAPSHOT-jar-with-dependencies.jar --dir repertoire
@@ -77,23 +80,28 @@ java -jar target/jnane-compiler-1.0-SNAPSHOT-jar-with-dependencies.jar --dir rep
 {
     // Implémentation simple de l'addition
     resultat = x + y;
-    
-    return {
-        resultat: resultat
-    };
 }
 ```
+
+## Vérifications effectuées par le compilateur
+
+1. **Vérification syntaxique** : Analyse de la syntaxe selon la grammaire ANTLR4
+2. **Vérification des variables évaluables** : S'assure que toutes les variables sont soit du type spécifié, soit ont une vue de ce type
+3. **Détection des cycles de dépendances** : Vérifie qu'il n'y a pas de cycle dans les définitions des fonctions
+4. **Vérification des namespaces** : S'assure que les fonctions sont correctement organisées selon leur namespace
 
 ## Fonctionnalités actuelles
 
 - Analyse lexicale et syntaxique complète du langage Jnane
 - Construction d'un arbre syntaxique abstrait (AST)
 - Support pour l'organisation des fichiers par namespaces
+- Vérification des variables évaluables
+- Détection des cycles de dépendances entre fonctions
 - Affichage formaté de l'AST
 
 ## Fonctionnalités à venir
 
-- Vérification sémantique
+- Vérification sémantique avancée
 - Génération de code
 - Optimisations
 - Interpréteur pour exécution directe

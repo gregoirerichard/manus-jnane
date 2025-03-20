@@ -8,8 +8,4 @@
 {
     // Implémentation simple de l'addition
     resultat = x + y;
-    
-    return {
-        resultat: resultat
-    };
 }
