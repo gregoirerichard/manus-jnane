@@ -1,5 +1,8 @@
 # Compilateur pour le langage de programmation Jnane
 
+[![Java CI with Maven](https://github.com/gregoirerichard/manus-jnane/actions/workflows/maven.yml/badge.svg)](https://github.com/gregoirerichard/manus-jnane/actions/workflows/maven.yml)
+[![codecov](https://codecov.io/gh/gregoirerichard/manus-jnane/branch/master/graph/badge.svg)](https://codecov.io/gh/gregoirerichard/manus-jnane)
+
 Ce projet est un compilateur pour le langage de programmation Jnane, un langage spécialisé dans la manipulation de réseaux causaux représentant des états.
 
 ## Caractéristiques du langage Jnane
@@ -37,6 +40,7 @@ Ce projet est un compilateur pour le langage de programmation Jnane, un langage 
   - `math/operations/` : Fonctions mathématiques de base
   - `collections/list/` : Opérations sur les listes
   - `state/transformer/` : Transformations d'états
+- `.github/workflows/` : Configuration de l'intégration continue avec GitHub Actions
 
 ## Prérequis
 
@@ -82,6 +86,17 @@ java -jar target/jnane-compiler-1.0-SNAPSHOT-jar-with-dependencies.jar --dir rep
     resultat = x + y;
 }
 ```
+
+## Intégration Continue
+
+Ce projet utilise GitHub Actions pour l'intégration continue. À chaque push ou pull request sur la branche master, le workflow exécute automatiquement :
+
+1. La compilation du projet avec Maven
+2. L'exécution des tests unitaires
+3. L'analyse des exemples de code Jnane
+4. La génération de rapports de couverture de code avec Codecov
+
+Les résultats de ces opérations sont visibles via les badges en haut de ce README et dans l'onglet Actions du dépôt GitHub.
 
 ## Vérifications effectuées par le compilateur
 
