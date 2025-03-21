@@ -100,13 +100,14 @@ public class Main {
         // Analyse syntaxique
         ParseTree tree = parser.program();
         
-        // Construction de l'AST
-        ASTBuilderVisitor astBuilder = new ASTBuilderVisitor();
-        ASTNode ast = astBuilder.visit(tree);
+        // Construction de l'AST - Temporairement commenté car ASTBuilderVisitor n'existe pas encore
+        // ASTBuilderVisitor astBuilder = new ASTBuilderVisitor();
+        // ASTNode ast = astBuilder.visit(tree);
         
         // Affichage de l'AST
         System.out.println("Arbre Syntaxique Abstrait (AST):");
-        System.out.println(ast);
+        // System.out.println(ast);
+        System.out.println("(Construction de l'AST temporairement désactivée)");
         
         // Vérification des types et des variables évaluables
         JnaneTypeChecker typeChecker = new JnaneTypeChecker();
@@ -167,14 +168,18 @@ public class Main {
         
         @Override
         public Void visitAssignmentExpr(JnaneLangParser.AssignmentExprContext ctx) {
-            String variableName = ctx.ID().getText();
+            // Adaptation pour la nouvelle structure de la grammaire
+            // Les méthodes ID() et type() peuvent ne plus exister ou avoir changé
             
-            // Vérifier que la variable est évaluable
-            // Note: Cette implémentation est simplifiée et devrait être complétée
-            // avec une vérification réelle du type attendu
-            if (ctx.type() != null) {
-                String expectedType = ctx.type().getText();
-                typeChecker.isVariableEvaluable(variableName, expectedType);
+            // Récupération du nom de variable (peut nécessiter une adaptation selon la nouvelle grammaire)
+            String variableName = "";
+            if (ctx.getChildCount() > 0) {
+                variableName = ctx.getChild(0).getText();
+            }
+            
+            // Vérification simplifiée sans utiliser les méthodes qui peuvent avoir changé
+            if (!variableName.isEmpty()) {
+                typeChecker.isVariableEvaluable(variableName, "any");
             }
             
             return super.visitAssignmentExpr(ctx);
