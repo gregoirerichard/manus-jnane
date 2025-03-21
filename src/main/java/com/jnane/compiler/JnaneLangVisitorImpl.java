@@ -534,4 +534,74 @@ public class JnaneLangVisitorImpl extends AbstractParseTreeVisitor<Object> imple
         System.out.println(getIndent() + "Déclaration d'export: " + ctx.getText());
         return visitChildren(ctx);
     }
+    
+    // Ajout de la méthode manquante visitImportPath
+    @Override
+    public Object visitImportPath(JnaneLangParser.ImportPathContext ctx) {
+        System.out.println(getIndent() + "Chemin d'import: " + ctx.getText());
+        return visitChildren(ctx);
+    }
+    
+    // Ajout de la méthode manquante visitImportDecl
+    @Override
+    public Object visitImportDecl(JnaneLangParser.ImportDeclContext ctx) {
+        System.out.println(getIndent() + "Déclaration d'import: " + ctx.getText());
+        return visitChildren(ctx);
+    }
+    
+    // Ajout de la méthode manquante visitNamespaceDecl
+    @Override
+    public Object visitNamespaceDecl(JnaneLangParser.NamespaceDeclContext ctx) {
+        System.out.println(getIndent() + "Déclaration d'espace de noms: " + ctx.getText());
+        return visitChildren(ctx);
+    }
+    
+    // Ajout de la méthode manquante visitNamespaceElement
+    @Override
+    public Object visitNamespaceElement(JnaneLangParser.NamespaceElementContext ctx) {
+        System.out.println(getIndent() + "Élément d'espace de noms: " + ctx.getText());
+        return visitChildren(ctx);
+    }
+    
+    // Ajout de la méthode manquante visitNamespaceBody
+    @Override
+    public Object visitNamespaceBody(JnaneLangParser.NamespaceBodyContext ctx) {
+        System.out.println(getIndent() + "Corps d'espace de noms: " + ctx.getText());
+        return visitChildren(ctx);
+    }
+    
+    // Ajout de la méthode manquante visitNamespaceId
+    @Override
+    public Object visitNamespaceId(JnaneLangParser.NamespaceIdContext ctx) {
+        System.out.println(getIndent() + "Identifiant d'espace de noms: " + ctx.getText());
+        return visitChildren(ctx);
+    }
+    
+    // Ajout de la méthode manquante visitEnumValue
+    @Override
+    public Object visitEnumValue(JnaneLangParser.EnumValueContext ctx) {
+        System.out.println(getIndent() + "Valeur d'énumération: " + ctx.getText());
+        return visitChildren(ctx);
+    }
+    
+    // Ajout de la méthode manquante visitEnumType
+    @Override
+    public Object visitEnumType(JnaneLangParser.EnumTypeContext ctx) {
+        System.out.println(getIndent() + "Type d'énumération: " + ctx.getText());
+        return visitChildren(ctx);
+    }
+    
+    // Ajout de la méthode manquante visitTypeAlias
+    @Override
+    public Object visitTypeAlias(JnaneLangParser.TypeAliasContext ctx) {
+        System.out.println(getIndent() + "Alias de type: " + ctx.getText());
+        return visitChildren(ctx);
+    }
+    
+    // Ajout de la méthode manquante visitTypeList
+    @Override
+    public Object visitTypeList(JnaneLangParser.TypeListContext ctx) {
+        System.out.println(getIndent() + "Liste de types: " + ctx.getText());
+        return visitChildren(ctx);
+    }
 }
