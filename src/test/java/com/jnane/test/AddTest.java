@@ -82,9 +82,10 @@ public class AddTest {
             ParseTree tree = parser.program();
             logger.debug("Analyse syntaxique réussie");
             
-            // Initialiser manuellement la valeur de resultat pour le test
-            interpreter.setVariableValue("resultat", 8);
-            logger.debug("Valeur de resultat initialisée manuellement à 8");
+            // Utilisation du visiteur d'expressions pour interpréter le script
+            JnaneExpressionVisitor visitor = new JnaneExpressionVisitor(interpreter);
+            interpreter.executeScript(visitor, tree);
+            logger.debug("Exécution du script terminée");
             
             // Récupérer la valeur du résultat
             Object resultat = interpreter.getVariableValue("resultat");
