@@ -3,8 +3,8 @@ package com.jnane.compiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Visiteur spécialisé pour interpréter les expressions Jnane
@@ -13,16 +13,16 @@ import java.util.List;
 public class JnaneExpressionVisitor extends JnaneLangBaseVisitor<Object> {
     private static final Logger logger = LoggerFactory.getLogger(JnaneExpressionVisitor.class);
     private final JnaneInterpreter interpreter;
-    
+
     public JnaneExpressionVisitor(JnaneInterpreter interpreter) {
         this.interpreter = interpreter;
         logger.debug("JnaneExpressionVisitor initialisé avec l'interpréteur");
     }
-    
+
     @Override
     public Object visitProgram(JnaneLangParser.ProgramContext ctx) {
         logger.debug("Visite du programme Jnane: {}", ctx.getText());
-        
+
         // Traiter les annotations (comme @field)
         for (int i = 0; i < ctx.getChildCount(); i++) {
             if (ctx.getChild(i) instanceof JnaneLangParser.AnnotationDeclContext) {
@@ -33,48 +33,48 @@ public class JnaneExpressionVisitor extends JnaneLangBaseVisitor<Object> {
                 }
             }
         }
-        
+
         // Visiter tous les enfants (y compris le bloc principal)
         return visitChildren(ctx);
     }
-    
+
     @Override
     public Object visitStatement(JnaneLangParser.StatementContext ctx) {
         logger.debug("Visite d'une instruction: {}", ctx.getText());
         return visitChildren(ctx);
     }
-    
+
     @Override
     public Object visitAssignmentExpr(JnaneLangParser.AssignmentExprContext ctx) {
         logger.debug("Visite d'une expression d'assignation: {}", ctx.getText());
-        
+
         // Récupérer le nom de la variable (côté gauche de l'assignation)
         String variableName = ctx.getChild(0).getText();
         logger.debug("Nom de la variable: {}", variableName);
-        
+
         // Si c'est une assignation (avec le signe =)
         if (ctx.getChildCount() > 1 && ctx.getChild(1).getText().equals("=")) {
             // Évaluer l'expression à droite de l'assignation
             Object value = visit(ctx.getChild(2));
             logger.debug("Valeur calculée pour l'assignation: {}", value);
-            
+
             // Stocker la valeur dans l'interpréteur
             interpreter.setVariableValue(variableName, value);
-            
+
             return value;
         }
-        
+
         // Si ce n'est pas une assignation, simplement visiter l'enfant
         return visit(ctx.getChild(0));
     }
-    
+
     @Override
     public Object visitFunctionCallExpr(JnaneLangParser.FunctionCallExprContext ctx) {
         logger.debug("Visite d'un appel de fonction: {}", ctx.getText());
-        
+
         String functionName = "";
-        List<Object> args = new ArrayList<>();
-        
+        Map<String, Object> namedArgs = new HashMap<>();
+
         // Déterminer le nom de la fonction
         if (ctx.namespaceId() != null && ctx.ID() != null) {
             // Format namespace:fonction(args)
@@ -87,32 +87,55 @@ public class JnaneExpressionVisitor extends JnaneLangBaseVisitor<Object> {
             functionName = ctx.ID().getText();
             logger.debug("Appel de fonction simple: {}", functionName);
         }
-        
+
         // Collecter les arguments
         if (ctx.argumentList() != null) {
-            // Parcourir les arguments
-            for (int i = 0; i < ctx.argumentList().getChildCount(); i++) {
-                if (ctx.argumentList().getChild(i) instanceof JnaneLangParser.ExpressionContext) {
-                    Object argValue = visit(ctx.argumentList().getChild(i));
-                    logger.debug("Argument évalué à: {}", argValue);
-                    args.add(argValue);
+            // Analyser le texte des arguments pour extraire les arguments nommés
+            // Format attendu: "argName: argValue"
+            for (int i = 0; i < ctx.argumentList().expression().size(); i++) {
+                JnaneLangParser.ExpressionContext exprCtx = ctx.argumentList().expression(i);
+                String argText = exprCtx.getText();
+
+                // Vérifier si c'est un argument nommé (contient ":")
+                int colonPos = argText.indexOf(':');
+                if (colonPos > 0) {
+                    // Extraire le nom de l'argument (avant le ":")
+                    String argName = argText.substring(0, colonPos).trim();
+
+                    // Extraire et évaluer la valeur de l'argument (après le ":")
+                    JnaneLangParser.ExpressionContext valueExpr =
+                            (JnaneLangParser.ExpressionContext) exprCtx.getChild(0).getChild(0);
+                    Object argValue = visit(valueExpr);
+
+                    logger.debug("Argument nommé extrait: {} = {}", argName, argValue);
+                    namedArgs.put(argName, argValue);
+                } else {
+                    // Argument positionnel (ancien format)
+                    Object argValue = visit(exprCtx);
+                    logger.debug("Argument positionnel évalué à: {}", argValue);
+                    // Nous ne traitons plus les arguments positionnels
+                    logger.warn("Argument positionnel détecté, mais non supporté dans le nouveau format");
                 }
             }
         }
-        
-        // Appeler la fonction via l'interpréteur
-        logger.debug("Appel de la fonction {} avec {} arguments", functionName, args.size());
-        Object result = interpreter.interpretFunctionCall(functionName, args.toArray());
-        logger.debug("Résultat de l'appel de fonction {}: {}", functionName, result);
-        
-        return result;
+
+        // Appeler la fonction via l'interpréteur avec les arguments nommés
+        logger.debug("Appel de la fonction {} avec {} arguments nommés", functionName, namedArgs.size());
+        try {
+            Object result = interpreter.interpretFunctionCallWithNamedArgs(functionName, namedArgs);
+            logger.debug("Résultat de l'appel de fonction {}: {}", functionName, result);
+            return result;
+        } catch (IllegalArgumentException e) {
+            logger.error("Erreur lors de l'appel de fonction {}: {}", functionName, e.getMessage());
+            throw e; // Propager l'erreur pour qu'elle soit gérée par le test
+        }
     }
-    
+
     @Override
     public Object visitLiteral(JnaneLangParser.LiteralContext ctx) {
         String text = ctx.getText();
         logger.debug("Traitement du littéral: {}", text);
-        
+
         // Interpréter les littéraux selon leur type
         if (ctx.INTEGER() != null) {
             try {
@@ -143,15 +166,15 @@ public class JnaneExpressionVisitor extends JnaneLangBaseVisitor<Object> {
             logger.debug("Littéral null interprété");
             return null;
         }
-        
+
         // Par défaut, retourner le texte brut
         return text;
     }
-    
+
     @Override
     public Object visitExpressionStmt(JnaneLangParser.ExpressionStmtContext ctx) {
         logger.debug("Traitement d'une instruction d'expression: {}", ctx.getText());
-        
+
         // Vérifier si c'est un appel à print
         String expr = ctx.getText();
         if (expr.startsWith("print(")) {
@@ -159,18 +182,18 @@ public class JnaneExpressionVisitor extends JnaneLangBaseVisitor<Object> {
             logger.info("Print: {}", result);
             return result;
         }
-        
+
         return visit(ctx.expression());
     }
-    
+
     @Override
     public Object visitIfStmt(JnaneLangParser.IfStmtContext ctx) {
         logger.debug("Traitement d'une instruction if");
-        
+
         // Évaluer la condition
         Object condition = visit(ctx.expression());
         logger.debug("Condition évaluée à: {}", condition);
-        
+
         // Si la condition est vraie (non-null et non-false)
         if (condition != null && (!(condition instanceof Boolean) || (Boolean) condition)) {
             // Exécuter le bloc then
@@ -181,28 +204,28 @@ public class JnaneExpressionVisitor extends JnaneLangBaseVisitor<Object> {
             logger.debug("Exécution du bloc else");
             return visit(ctx.blockStmt(1));
         }
-        
+
         return null;
     }
-    
+
     @Override
     public Object visitBlockStmt(JnaneLangParser.BlockStmtContext ctx) {
         logger.debug("Traitement d'un bloc d'instructions");
-        
+
         Object lastResult = null;
-        
+
         // Exécuter chaque instruction du bloc
         for (int i = 1; i < ctx.getChildCount() - 1; i++) { // Ignorer les accolades
             lastResult = visit(ctx.getChild(i));
         }
-        
+
         return lastResult;
     }
-    
+
     @Override
     public Object visitPrimaryExpr(JnaneLangParser.PrimaryExprContext ctx) {
         logger.debug("Traitement d'une expression primaire: {}", ctx.getText());
-        
+
         // Si c'est un identifiant, récupérer sa valeur
         if (ctx.ID() != null) {
             String variableName = ctx.ID().getText();
@@ -210,20 +233,20 @@ public class JnaneExpressionVisitor extends JnaneLangBaseVisitor<Object> {
             logger.debug("Valeur de la variable {}: {}", variableName, value);
             return value;
         }
-        
+
         return visitChildren(ctx);
     }
-    
+
     @Override
     public Object visitConditionalExpr(JnaneLangParser.ConditionalExprContext ctx) {
         logger.debug("Traitement d'une expression conditionnelle");
-        
+
         // Si c'est une expression ternaire
         if (ctx.getChildCount() > 1 && ctx.getChild(1).getText().equals("?")) {
             // Évaluer la condition
             Object condition = visit(ctx.getChild(0));
             logger.debug("Condition évaluée à: {}", condition);
-            
+
             // Si la condition est vraie (non-null et non-false)
             if (condition != null && (!(condition instanceof Boolean) || (Boolean) condition)) {
                 // Évaluer l'expression then
@@ -235,22 +258,22 @@ public class JnaneExpressionVisitor extends JnaneLangBaseVisitor<Object> {
                 return visit(ctx.getChild(4));
             }
         }
-        
+
         return visitChildren(ctx);
     }
-    
+
     @Override
     public Object visitAdditiveExpr(JnaneLangParser.AdditiveExprContext ctx) {
         logger.debug("Traitement d'une expression additive");
-        
+
         // Si c'est une addition ou soustraction
         if (ctx.getChildCount() > 1) {
             Object left = visit(ctx.getChild(0));
             String operator = ctx.getChild(1).getText();
             Object right = visit(ctx.getChild(2));
-            
+
             logger.debug("Expression additive: {} {} {}", left, operator, right);
-            
+
             // Addition
             if (operator.equals("+")) {
                 if (left instanceof Integer && right instanceof Integer) {
@@ -267,22 +290,22 @@ public class JnaneExpressionVisitor extends JnaneLangBaseVisitor<Object> {
                 }
             }
         }
-        
+
         return visitChildren(ctx);
     }
-    
+
     @Override
     public Object visitEqualityExpr(JnaneLangParser.EqualityExprContext ctx) {
         logger.debug("Traitement d'une expression d'égalité");
-        
+
         // Si c'est une comparaison d'égalité
         if (ctx.getChildCount() > 1) {
             Object left = visit(ctx.getChild(0));
             String operator = ctx.getChild(1).getText();
             Object right = visit(ctx.getChild(2));
-            
+
             logger.debug("Expression d'égalité: {} {} {}", left, operator, right);
-            
+
             // Égalité
             if (operator.equals("==")) {
                 if (left == null && right == null) {
@@ -304,10 +327,10 @@ public class JnaneExpressionVisitor extends JnaneLangBaseVisitor<Object> {
                 }
             }
         }
-        
+
         return visitChildren(ctx);
     }
-    
+
     @Override
     public Object visitExpression(JnaneLangParser.ExpressionContext ctx) {
         logger.debug("Visite d'une expression: {}", ctx.getText());

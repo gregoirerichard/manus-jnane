@@ -1,10 +1,9 @@
 // Script de test pour la fonction math:add
 @name com.jnane.test:testAdd
 @field resultat Entier
-
 {
-    // Appel de la fonction math:add avec les valeurs 5 et 3
-    resultat = math:add(5, 3);
+    // Appel de la fonction math:add avec les arguments nommés
+    resultat = math:add(first: 5, second: 3);
     
     // Vérification que le résultat est correct (8)
     if (resultat == 8) {

@@ -1,10 +1,10 @@
 // Fonction d'addition dans le namespace math
 @name math:add
-@arg a Premier entier
-@arg b Deuxième entier
+@name first Premier entier
+@name second Deuxième entier
 @field resultat Entier
 
 {
     // Implémentation simple de l'addition
-    resultat = a + b;
+    resultat = first + second;
 }
