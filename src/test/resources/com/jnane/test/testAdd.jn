@@ -1,0 +1,15 @@
+// Script de test pour la fonction math:add
+@name com.jnane.test:testAdd
+@field resultat Entier
+
+{
+    // Appel de la fonction math:add avec les valeurs 5 et 3
+    resultat = math:add(5, 3);
+    
+    // Vérification que le résultat est correct (8)
+    if (resultat == 8) {
+        print("Test réussi: 5 + 3 = " + resultat);
+    } else {
+        print("Test échoué: 5 + 3 devrait être 8, mais a donné " + resultat);
+    }
+}
