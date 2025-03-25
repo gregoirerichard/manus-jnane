@@ -42,7 +42,7 @@ public class JnaneFileLoader {
         List<String> namespaceParts = new ArrayList<>();
         Path current = parent;
         
-        while (current != null && !current.toString().isEmpty()) {
+        while (current != null && current.getFileName() != null && !current.toString().isEmpty()) {
             namespaceParts.add(0, current.getFileName().toString());
             current = current.getParent();
         }
