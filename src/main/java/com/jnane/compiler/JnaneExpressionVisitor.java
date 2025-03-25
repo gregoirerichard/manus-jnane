@@ -4,7 +4,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Visiteur spécialisé pour interpréter les expressions Jnane
@@ -24,17 +26,38 @@ public class JnaneExpressionVisitor extends JnaneLangBaseVisitor<Object> {
         logger.debug("Visite du programme Jnane: {}", ctx.getText());
 
         // Traiter les annotations (comme @field, @arg)
+        String currentFunction = null;
+        Set<String> functionArgs = new HashSet<>();
+        
         for (int i = 0; i < ctx.getChildCount(); i++) {
             if (ctx.getChild(i) instanceof JnaneLangParser.AnnotationDeclContext) {
                 JnaneLangParser.AnnotationDeclContext annotCtx = (JnaneLangParser.AnnotationDeclContext) ctx.getChild(i);
-                if (annotCtx.annotationName().getText().equals("field")) {
+                String annotationName = annotCtx.annotationName().getText();
+                
+                if (annotationName.equals("field")) {
                     String fieldName = annotCtx.annotationParams().getText();
                     logger.debug("Déclaration de champ trouvée: {}", fieldName);
-                } else if (annotCtx.annotationName().getText().equals("add")) {
-                    String addName = annotCtx.annotationParams().getText();
-                    logger.debug("Déclaration d'argument trouvée: {}", addName);
+                } else if (annotationName.equals("name")) {
+                    // Récupérer le nom de la fonction avec son namespace
+                    if (annotCtx.annotationValue() != null) {
+                        currentFunction = annotCtx.annotationValue().getText();
+                        logger.debug("Déclaration de fonction trouvée: {}", currentFunction);
+                    }
+                } else if (annotationName.equals("arg")) {
+                    // Récupérer le nom de l'argument
+                    if (annotCtx.annotationValue() != null) {
+                        String argName = annotCtx.annotationValue().getText().split(" ")[0];
+                        functionArgs.add(argName);
+                        logger.debug("Déclaration d'argument trouvée: {}", argName);
+                    }
                 }
             }
+        }
+        
+        // Si on a trouvé une fonction et ses arguments, les enregistrer dans l'interpréteur
+        if (currentFunction != null && !functionArgs.isEmpty()) {
+            interpreter.registerFunctionParameters(currentFunction, functionArgs);
+            logger.info("Enregistrement des paramètres pour la fonction {}: {}", currentFunction, functionArgs);
         }
 
         // Visiter tous les enfants (y compris le bloc principal)
@@ -63,6 +86,10 @@ public class JnaneExpressionVisitor extends JnaneLangBaseVisitor<Object> {
 
             // Stocker la valeur dans l'interpréteur
             interpreter.setVariableValue(variableName, value);
+            
+            // Vérification supplémentaire pour s'assurer que la valeur est bien stockée
+            Object storedValue = interpreter.getVariableValue(variableName);
+            logger.debug("Valeur stockée vérifiée pour {}: {}", variableName, storedValue);
 
             return value;
         }
@@ -106,9 +133,25 @@ public class JnaneExpressionVisitor extends JnaneLangBaseVisitor<Object> {
                     String argName = argText.substring(0, colonPos).trim();
 
                     // Extraire et évaluer la valeur de l'argument (après le ":")
-                    JnaneLangParser.ExpressionContext valueExpr =
-                            (JnaneLangParser.ExpressionContext) exprCtx.getChild(0).getChild(0);
-                    Object argValue = visit(valueExpr);
+                    // Correction: utiliser directement l'expression littérale
+                    String valueText = argText.substring(colonPos + 1).trim();
+                    
+                    // Pour les arguments numériques, les traiter directement
+                    Object argValue = null;
+                    try {
+                        int numericValue = Integer.parseInt(valueText);
+                        argValue = numericValue;
+                        logger.debug("Valeur numérique extraite pour l'argument {}: {}", argName, argValue);
+                    } catch (NumberFormatException e) {
+                        // Si ce n'est pas un nombre, essayer de visiter l'expression
+                        for (int j = 0; j < exprCtx.getChildCount(); j++) {
+                            if (exprCtx.getChild(j) instanceof JnaneLangParser.ExpressionContext) {
+                                argValue = visit(exprCtx.getChild(j));
+                                break;
+                            }
+                        }
+                        logger.debug("Valeur non-numérique extraite pour l'argument {}: {}", argName, argValue);
+                    }
 
                     logger.debug("Argument nommé extrait: {} = {}", argName, argValue);
                     namedArgs.put(argName, argValue);
