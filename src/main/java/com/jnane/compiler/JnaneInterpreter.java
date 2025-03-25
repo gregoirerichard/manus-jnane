@@ -145,6 +145,18 @@ public class JnaneInterpreter {
         logger.debug("Récupération de la valeur de la variable {}: {}", name, variables.get(name));
         return variables.get(name);
     }
+    
+    /**
+     * Vérifie si une variable existe
+     *
+     * @param name Nom de la variable
+     * @return true si la variable existe, false sinon
+     */
+    public boolean hasVariable(String name) {
+        boolean exists = variables.containsKey(name);
+        logger.debug("Vérification de l'existence de la variable {}: {}", name, exists);
+        return exists;
+    }
 
     /**
      * Définit la valeur d'une variable

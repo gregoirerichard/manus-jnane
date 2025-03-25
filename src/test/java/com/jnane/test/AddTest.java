@@ -1,10 +1,6 @@
 package com.jnane.test;
 
 import com.jnane.compiler.*;
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.tree.ParseTree;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;
@@ -18,10 +14,11 @@ import java.nio.file.Paths;
 
 /**
  * Classe de test unitaire pour valider le parsing et l'interprétation de la fonction math:add
+ * en utilisant les classes Script et ScriptExecutor
  */
 public class AddTest {
     private static final Logger logger = LoggerFactory.getLogger(AddTest.class);
-    private final JnaneInterpreter interpreter = new JnaneInterpreter();
+    private ScriptExecutor scriptExecutor;
 
     @BeforeEach
     public void setUp() {
@@ -35,7 +32,7 @@ public class AddTest {
         }
 
         logger.info("Démarrage du test AddTest");
-        interpreter.reset();
+        scriptExecutor = new ScriptExecutor();
     }
 
     @AfterEach
@@ -46,6 +43,7 @@ public class AddTest {
 
     /**
      * Test l'interprétation du script testAdd.jn qui utilise la fonction math:add
+     * en utilisant les classes Script et ScriptExecutor
      */
     @Test
     public void testAddFunction() throws Exception {
@@ -69,25 +67,21 @@ public class AddTest {
 
             logger.debug("Validation des extensions de fichiers réussie");
 
-            // Création du lexer et du parser pour le fichier de test
-            CharStream input = CharStreams.fromFileName(testFilePath);
-            JnaneLangLexer lexer = new JnaneLangLexer(input);
-            CommonTokenStream tokens = new CommonTokenStream(lexer);
-            JnaneLangParser parser = new JnaneLangParser(tokens);
+            // Charger le script à partir du fichier
+            Script script = new Script(testFilePath);
+            logger.debug("Script chargé: {}", script.getFullFunctionName());
+            
+            // Afficher le contenu source du script
+            logger.debug("Contenu source du script:\n{}", script.toString());
+            
+            // Afficher la structure parsée du script
+            logger.debug("Structure parsée du script:\n{}", script.getParsedScript());
 
-            logger.debug("Lexer et parser créés avec succès");
-
-            // Analyse syntaxique
-            ParseTree tree = parser.program();
-            logger.debug("Analyse syntaxique réussie");
-
-            // Utilisation du visiteur d'expressions pour interpréter le script
-            JnaneExpressionVisitor visitor = new JnaneExpressionVisitor(interpreter);
-            interpreter.executeScript(visitor, tree);
+            // Exécuter le script avec ScriptExecutor
+            Object resultat = scriptExecutor.executeScript(script);
             logger.debug("Exécution du script terminée");
-
-            // Récupérer la valeur du résultat
-            Object resultat = interpreter.getVariableValue("resultat");
+            
+            // Afficher le résultat
             logger.info("Résultat obtenu: {}", resultat);
 
             // Vérifier que le résultat est correct
