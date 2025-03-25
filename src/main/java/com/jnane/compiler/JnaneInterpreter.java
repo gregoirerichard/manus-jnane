@@ -219,6 +219,7 @@ public class JnaneInterpreter {
         // Ne pas réinitialiser les variables pour permettre le partage entre les scripts
         // reset();
         Object result = visitor.visit(tree);
+        Object result = visitor.visit(tree);
         logger.info("Exécution du script terminée");
         // Afficher toutes les variables définies pour le débogage
         logger.debug("Variables définies après exécution: {}", variables);

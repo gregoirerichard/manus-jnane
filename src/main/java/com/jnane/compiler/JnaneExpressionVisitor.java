@@ -23,13 +23,16 @@ public class JnaneExpressionVisitor extends JnaneLangBaseVisitor<Object> {
     public Object visitProgram(JnaneLangParser.ProgramContext ctx) {
         logger.debug("Visite du programme Jnane: {}", ctx.getText());
 
-        // Traiter les annotations (comme @field)
+        // Traiter les annotations (comme @field, @arg)
         for (int i = 0; i < ctx.getChildCount(); i++) {
             if (ctx.getChild(i) instanceof JnaneLangParser.AnnotationDeclContext) {
                 JnaneLangParser.AnnotationDeclContext annotCtx = (JnaneLangParser.AnnotationDeclContext) ctx.getChild(i);
                 if (annotCtx.annotationName().getText().equals("field")) {
                     String fieldName = annotCtx.annotationParams().getText();
                     logger.debug("Déclaration de champ trouvée: {}", fieldName);
+                } else if (annotCtx.annotationName().getText().equals("add")) {
+                    String addName = annotCtx.annotationParams().getText();
+                    logger.debug("Déclaration d'argument trouvée: {}", addName);
                 }
             }
         }

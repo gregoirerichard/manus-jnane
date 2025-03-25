@@ -121,6 +121,16 @@ Les résultats de ces opérations sont visibles via les badges en haut de ce REA
 - Optimisations
 - Interpréteur pour exécution directe
 
+## Todo 
+- Conserver la signature de la fonction (à partir des annotations) dans un contexte, au lieu d'initier functionParamters avec les valeurs par défaut "first" et "second" 
+- Ajouter les autres opérations sur les Entiers.
+- Ajouter les opérations sur les Listes.
+- Ajouter les opérations sur les Maps.
+- Ajouter les opérations sur les autres types de nombres.
+- Ajouter les opérations sur les Strings.
+- Ajouter une méthode toString sur la stucture d'une opéaration
+
+
 ## Licence
 
 Ce projet est sous licence MIT.
