@@ -128,7 +128,7 @@ Les résultats de ces opérations sont visibles via les badges en haut de ce REA
 - Ajouter les opérations sur les Maps.
 - Ajouter les opérations sur les autres types de nombres.
 - Ajouter les opérations sur les Strings.
-- Ajouter une méthode toString sur la stucture d'une opéaration
+- Ajouter une méthode toString sur la stucture d'une opération
 
 
 ## Licence
