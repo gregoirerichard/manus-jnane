@@ -290,8 +290,8 @@ public class JnaneInterpreter {
         logger.debug("Interprétation de la fonction depuis le fichier: {}", filePath);
         
         try {
-            // Charger le contenu du fichier
-            String content = JnaneFileLoader.loadFile(filePath);
+            // Charger le script
+            Script script = new Script(filePath);
             
             // Créer un nouvel interpréteur pour cette fonction
             // avec le même chemin de ressources pour permettre les appels entre fonctions
@@ -302,18 +302,11 @@ public class JnaneInterpreter {
                 functionInterpreter.setVariableValue(entry.getKey(), entry.getValue());
             }
             
-            // Analyser et exécuter le contenu de la fonction
-            org.antlr.v4.runtime.CharStream input = org.antlr.v4.runtime.CharStreams.fromString(content);
-            JnaneLangLexer lexer = new JnaneLangLexer(input);
-            org.antlr.v4.runtime.CommonTokenStream tokens = new org.antlr.v4.runtime.CommonTokenStream(lexer);
-            JnaneLangParser parser = new JnaneLangParser(tokens);
-            JnaneLangParser.ProgramContext tree = parser.program();
-            
             // Créer un visiteur pour interpréter le contenu
             JnaneExpressionVisitor visitor = new JnaneExpressionVisitor(functionInterpreter);
             
             // Exécuter le script
-            Object result = functionInterpreter.executeScript(visitor, tree);
+            Object result = functionInterpreter.executeScript(visitor, script.getProgramContext());
             
             // Récupérer la variable "resultat" si elle existe
             if (functionInterpreter.variables.containsKey("resultat")) {
