@@ -3,6 +3,7 @@ package com.jnane.compiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -19,13 +20,108 @@ public class JnaneInterpreter {
 
     // Stockage des définitions de fonctions et leurs paramètres
     private final Map<String, Set<String>> functionParameters = new HashMap<>();
+    
+    // Chargeur de fonctions pour la découverte dynamique
+    private final JnaneFunctionLoader functionLoader;
+    
+    // Pile d'appels pour la détection de cycles
+    private final Set<String> currentCallStack = new HashSet<>();
+    
+    // Chemin de base des ressources
+    private String resourcesBasePath;
 
     /**
      * Constructeur
      */
     public JnaneInterpreter() {
         logger.debug("Initialisation de l'interpréteur Jnane");
-        // L'initialisation des paramètres se fait maintenant dynamiquement via registerFunctionParameters
+        this.functionLoader = new JnaneFunctionLoader();
+        this.resourcesBasePath = "src/main/resources";
+        // Charger les fonctions disponibles
+        try {
+            loadAvailableFunctions();
+        } catch (IOException e) {
+            logger.error("Erreur lors du chargement des fonctions disponibles", e);
+        }
+    }
+    
+    /**
+     * Constructeur avec chemin de base des ressources personnalisé
+     * 
+     * @param resourcesBasePath Chemin de base des ressources
+     */
+    public JnaneInterpreter(String resourcesBasePath) {
+        logger.debug("Initialisation de l'interpréteur Jnane avec chemin de ressources: {}", resourcesBasePath);
+        this.functionLoader = new JnaneFunctionLoader();
+        this.resourcesBasePath = resourcesBasePath;
+        // Charger les fonctions disponibles
+        try {
+            loadAvailableFunctions();
+        } catch (IOException e) {
+            logger.error("Erreur lors du chargement des fonctions disponibles", e);
+        }
+    }
+    
+    /**
+     * Charge toutes les fonctions disponibles dans le répertoire des ressources
+     * 
+     * @throws IOException En cas d'erreur de lecture
+     */
+    private void loadAvailableFunctions() throws IOException {
+        logger.info("Chargement des fonctions disponibles depuis: {}", resourcesBasePath);
+        functionLoader.loadFunctionsFromDirectory(resourcesBasePath);
+        
+        // Vérifier s'il y a des erreurs de cycle
+        if (functionLoader.hasErrors()) {
+            logger.error("Erreurs détectées lors du chargement des fonctions:");
+            for (String error : functionLoader.getErrors()) {
+                logger.error("  - {}", error);
+            }
+        }
+        
+        // Extraire les paramètres des fonctions
+        for (Map.Entry<String, JnaneFunctionLoader.FunctionInfo> entry : functionLoader.getFunctions().entrySet()) {
+            String functionName = entry.getKey();
+            String filePath = entry.getValue().getFilePath();
+            
+            try {
+                // Charger le contenu du fichier pour extraire les annotations
+                String content = JnaneFileLoader.loadFile(filePath);
+                Set<String> params = extractFunctionParameters(content);
+                registerFunctionParameters(functionName, params);
+                logger.debug("Paramètres extraits pour la fonction {}: {}", functionName, params);
+            } catch (IOException e) {
+                logger.error("Erreur lors de l'extraction des paramètres pour la fonction {}", functionName, e);
+            }
+        }
+        
+        logger.info("Fonctions chargées: {}", functionLoader.getFunctions().keySet());
+    }
+    
+    /**
+     * Extrait les paramètres d'une fonction à partir du contenu du fichier
+     * 
+     * @param content Contenu du fichier de fonction
+     * @return Ensemble des noms de paramètres
+     */
+    private Set<String> extractFunctionParameters(String content) {
+        Set<String> params = new HashSet<>();
+        String[] lines = content.split("\n");
+        
+        for (String line : lines) {
+            line = line.trim();
+            // Rechercher les annotations @name pour les arguments
+            if (line.startsWith("@name ") && !line.contains(":")) {
+                String[] parts = line.substring("@name ".length()).split("\\s+", 2);
+                if (parts.length > 0) {
+                    String paramName = parts[0].trim();
+                    params.add(paramName);
+                    logger.debug("Paramètre trouvé: {}", paramName);
+                }
+            }
+        }
+        
+        return params;
     }
     
     /**
@@ -105,6 +201,13 @@ public class JnaneInterpreter {
     public Object interpretFunctionCallWithNamedArgs(String functionName, Map<String, Object> namedArgs) {
         logger.debug("Interprétation de l'appel de fonction: {} avec arguments nommés: {}", functionName, namedArgs);
 
+        // Vérifier si la fonction est dans la pile d'appels (détection de cycle)
+        if (currentCallStack.contains(functionName)) {
+            String cycleError = "Cycle d'appels de fonction détecté: " + currentCallStack + " -> " + functionName;
+            logger.error(cycleError);
+            throw new IllegalStateException(cycleError);
+        }
+
         // Vérifier que tous les arguments sont valides
         for (String argName : namedArgs.keySet()) {
             if (!isValidParameter(functionName, argName)) {
@@ -114,6 +217,25 @@ public class JnaneInterpreter {
             }
         }
 
+        // Vérifier si la fonction existe dans le chargeur de fonctions
+        JnaneFunctionLoader.FunctionInfo functionInfo = functionLoader.getFunctions().get(functionName);
+        
+        if (functionInfo != null) {
+            logger.debug("Fonction trouvée dans le chargeur: {}", functionName);
+            
+            // Ajouter la fonction à la pile d'appels pour la détection de cycles
+            currentCallStack.add(functionName);
+            
+            try {
+                // Charger et interpréter la fonction à la volée
+                return interpretFunctionFromFile(functionInfo.getFilePath(), namedArgs);
+            } finally {
+                // Retirer la fonction de la pile d'appels
+                currentCallStack.remove(functionName);
+            }
+        }
+        
+        // Fonctions intégrées (fallback pour compatibilité)
         if (functionName.equals("math:add")) {
             // Vérifier que les arguments requis sont présents
             if (!namedArgs.containsKey("first") || !namedArgs.containsKey("second")) {
@@ -155,6 +277,56 @@ public class JnaneInterpreter {
 
         logger.warn("Fonction non supportée: {}", functionName);
         return null;
+    }
+    
+    /**
+     * Interprète une fonction à partir de son fichier source
+     * 
+     * @param filePath Chemin du fichier source de la fonction
+     * @param namedArgs Arguments nommés pour l'appel de fonction
+     * @return Résultat de l'interprétation
+     */
+    private Object interpretFunctionFromFile(String filePath, Map<String, Object> namedArgs) {
+        logger.debug("Interprétation de la fonction depuis le fichier: {}", filePath);
+        
+        try {
+            // Charger le contenu du fichier
+            String content = JnaneFileLoader.loadFile(filePath);
+            
+            // Créer un nouvel interpréteur pour cette fonction
+            // avec le même chemin de ressources pour permettre les appels entre fonctions
+            JnaneInterpreter functionInterpreter = new JnaneInterpreter(resourcesBasePath);
+            
+            // Copier les variables d'entrée (arguments) dans l'interpréteur de la fonction
+            for (Map.Entry<String, Object> entry : namedArgs.entrySet()) {
+                functionInterpreter.setVariableValue(entry.getKey(), entry.getValue());
+            }
+            
+            // Analyser et exécuter le contenu de la fonction
+            org.antlr.v4.runtime.CharStream input = org.antlr.v4.runtime.CharStreams.fromString(content);
+            JnaneLangLexer lexer = new JnaneLangLexer(input);
+            org.antlr.v4.runtime.CommonTokenStream tokens = new org.antlr.v4.runtime.CommonTokenStream(lexer);
+            JnaneLangParser parser = new JnaneLangParser(tokens);
+            JnaneLangParser.ProgramContext tree = parser.program();
+            
+            // Créer un visiteur pour interpréter le contenu
+            JnaneExpressionVisitor visitor = new JnaneExpressionVisitor(functionInterpreter);
+            
+            // Exécuter le script
+            Object result = functionInterpreter.executeScript(visitor, tree);
+            
+            // Récupérer la variable "resultat" si elle existe
+            if (functionInterpreter.variables.containsKey("resultat")) {
+                result = functionInterpreter.variables.get("resultat");
+            }
+            
+            logger.debug("Résultat de l'interprétation de la fonction: {}", result);
+            return result;
+            
+        } catch (IOException e) {
+            logger.error("Erreur lors de la lecture du fichier de fonction: {}", filePath, e);
+            throw new RuntimeException("Erreur lors de l'interprétation de la fonction", e);
+        }
     }
 
     /**
