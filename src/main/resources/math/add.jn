@@ -1,8 +1,8 @@
 // Fonction d'addition dans le namespace math
 @name math:add
-@name first : Premier entier
-@name second : Deuxième entier
-@view result : Entier
+@name first : int @doc("First argument")
+@name second : int @doc("Second argument")
+@view result : int @doc("Result of the addition")
 
 {
     // Implémentation simple de l'addition
