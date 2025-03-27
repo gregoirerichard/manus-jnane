@@ -1,11 +1,11 @@
 // Fonction d'addition dans le namespace math.operations
 
 @name math.operations:add
-@arg x int
-@arg y int
-@field resultat int
+@arg x : int
+@arg y : int
+@view result : int
 
 {
     // Implémentation simple de l'addition
-    resultat = x + y;
+    result = x + y;
 }

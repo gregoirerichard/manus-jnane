@@ -1,11 +1,11 @@
 // Fonction de multiplication dans le namespace math.operations
 
 @name math.operations:multiply
-@arg x int
-@arg y int
-@field resultat int
+@arg x : int
+@arg y : int
+@view result : int
 
 {
     // Implémentation simple de la multiplication
-    resultat = x * y;
+    result = x * y;
 }

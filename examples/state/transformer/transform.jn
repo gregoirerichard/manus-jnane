@@ -1,17 +1,17 @@
 // Fonction pour transformer un état dans le namespace state.transformer
 
 @name state.transformer:transform
-@arg[description="État à transformer"] etat Etat
-@arg[description="Fonction de transformation"] transformation Fonction<Etat, Etat>
-@field resultat Etat
-@view historique Liste<Etat>
+@arg etat : Etat @doc("État à transformer")
+@arg transformation : Fonction<Etat, Etat> @doc("Fonction de transformation")
+@view result : Etat
+@view historique : List<Etat>
 
 {
     // Application de la transformation à l'état
     nouvel_etat = transformation(etat);
     
     // Création d'un setter pour conserver l'historique
-    resultat = {
+    result = {
         original: etat,
         courant: nouvel_etat,
         modifications: [

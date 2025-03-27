@@ -1,11 +1,11 @@
 // Fonction pour créer une nouvelle liste dans le namespace collections.list
 
 @name collections.list:create
-@arg[description="Éléments initiaux de la liste"] elements Liste<Any>
-@field resultat Liste<Any>
-@view elements Liste<Any>
+@arg elements : List<Any> @doc("Éléments initiaux de la liste")
+@field result : List<Any>
+@view elements : List<Any>
 
 {
     // Création d'une nouvelle liste avec les éléments fournis
-    resultat = elements;
+    result = elements;
 }

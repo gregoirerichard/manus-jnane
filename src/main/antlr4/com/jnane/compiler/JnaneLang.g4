@@ -84,8 +84,10 @@ annotationValue
     | typeExpr            // Type (ex: @arg nom String)
     | STRING              // Chaîne de caractères (ex: @description "Description")
     | multilineString     // Chaîne multiligne (ex: @example ```code```)
-    | ID typeExpr         // Identifiant et type (ex: @arg nom String)
-    | ID typeExpr whereClause // Identifiant, type et clause where (ex: @arg age int where age >= 0)
+    | ID COLON typeExpr   // Identifiant et type avec séparateur (ex: @arg nom : String)
+    | ID typeExpr         // Identifiant et type (ex: @arg nom String) - format ancien
+    | ID COLON typeExpr whereClause // Identifiant, type et clause where (ex: @arg age : int where age >= 0)
+    | ID typeExpr whereClause // Identifiant, type et clause where (ex: @arg age int where age >= 0) - format ancien
     ;
 
 whereClause
