@@ -1,0 +1,17 @@
+@name com.soprahr.foryou.appl.telework.workflow.teleworkmodality:process @doc("Create a workflow.approval:process and apply csp")
+
+@arg @view confidentiality		: com.soprahr.foryou.appl.telework.workflow.teleworkmodality:confidentiality
+@arg @view dependencies 		: com.soprahr.foryou.appl.telework.workflow.teleworkmodality:dependencies
+
+@field CORE				: workflow:core
+@field APPROVAL 		: workflow.approval:approval
+@field CSP 				: workflow.csp:csp
+
+@field approvalProcess	: workflow.approval:process
+@field cspProcess 		: workflow.approval.csp:process
+
+@field tab				: workflow.tab:tab
+
+@field label			: workflow:labelAndTranslation @doc("Mask the label from com.soprahr.foryou.appl.telework.workflow.teleworkmodality:process")
+
+@view process			: workflow.approval:process

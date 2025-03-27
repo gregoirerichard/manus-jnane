@@ -21,7 +21,17 @@ declaration
 // ==================== ANNOTATIONS ====================
 
 annotationDecl
-    : AT annotationName (LBRACK annotationParams RBRACK)? annotationValue?
+    : AT annotationName (LBRACK annotationParams RBRACK)? annotationValue?  // Format actuel
+    | annotationSequence ID COLON typeExpr (docAnnotation)?                 // Nouveau format pour @field et @view
+    | AT 'name' namespaceId COLON ID (docAnnotation)?                       // Nouveau format pour @name
+    ;
+
+annotationSequence
+    : (AT annotationName (LBRACK annotationParams RBRACK)?)+
+    ;
+
+docAnnotation
+    : AT 'doc' LPAREN STRING RPAREN
     ;
 
 annotationName
@@ -547,14 +557,17 @@ ELLIPSIS : '...';
 AS : 'as';
 STAR : '*';
 TRIPLE_QUOTE : '```';
+
 // Littéraux
 INTEGER : [0-9]+;
 DECIMAL : [0-9]+ '.' [0-9]+;
 STRING : '"' (~["\r\n] | '\\"')* '"';
 BOOLEAN : 'Vrai' | 'Faux';
 NULL : 'Vide';
+
 // Identifiants
 ID : [a-zA-Z_][a-zA-Z0-9_]*;
+
 // Commentaires et espaces
 COMMENT : '//' ~[\r\n]* -> skip;
 MULTILINE_COMMENT : '/*' .*? '*/' -> skip;
