@@ -319,12 +319,102 @@ public class JnaneLangVisitorImpl extends AbstractParseTreeVisitor<Object> imple
     }
 
     @Override
-    public Object visitBlockStmt(JnaneLangParser.BlockStmtContext ctx) {
+    public Object visitTypeList(JnaneLangParser.TypeListContext ctx) {
         return visitChildren(ctx);
     }
 
     @Override
-    public Object visitExpressionStmt(JnaneLangParser.ExpressionStmtContext ctx) {
+    public Object visitTypeAlias(JnaneLangParser.TypeAliasContext ctx) {
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Object visitEnumType(JnaneLangParser.EnumTypeContext ctx) {
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Object visitEnumValue(JnaneLangParser.EnumValueContext ctx) {
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Object visitNamespaceDecl(JnaneLangParser.NamespaceDeclContext ctx) {
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Object visitNamespaceId(JnaneLangParser.NamespaceIdContext ctx) {
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Object visitNamespaceBody(JnaneLangParser.NamespaceBodyContext ctx) {
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Object visitNamespaceElement(JnaneLangParser.NamespaceElementContext ctx) {
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Object visitImportDecl(JnaneLangParser.ImportDeclContext ctx) {
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Object visitImportPath(JnaneLangParser.ImportPathContext ctx) {
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Object visitExportDecl(JnaneLangParser.ExportDeclContext ctx) {
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Object visitExportElement(JnaneLangParser.ExportElementContext ctx) {
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Object visitNamespaceAlias(JnaneLangParser.NamespaceAliasContext ctx) {
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Object visitViewDecl(JnaneLangParser.ViewDeclContext ctx) {
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Object visitViewBody(JnaneLangParser.ViewBodyContext ctx) {
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Object visitViewElement(JnaneLangParser.ViewElementContext ctx) {
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Object visitViewOperation(JnaneLangParser.ViewOperationContext ctx) {
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Object visitLensDefinition(JnaneLangParser.LensDefinitionContext ctx) {
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Object visitLensOperation(JnaneLangParser.LensOperationContext ctx) {
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Object visitLensExpr(JnaneLangParser.LensExprContext ctx) {
         return visitChildren(ctx);
     }
 
@@ -334,274 +424,121 @@ public class JnaneLangVisitorImpl extends AbstractParseTreeVisitor<Object> imple
     }
 
     @Override
-    public Object visitPattern(JnaneLangParser.PatternContext ctx) {
-        System.out.println(getIndent() + "Pattern: " + ctx.getText());
+    public Object visitConditionalExpr(JnaneLangParser.ConditionalExprContext ctx) {
         return visitChildren(ctx);
     }
-    
-    // Ajout de la méthode manquante visitParamList
-    @Override
-    public Object visitParamList(JnaneLangParser.ParamListContext ctx) {
-        System.out.println(getIndent() + "Liste de paramètres: " + ctx.getText());
-        return visitChildren(ctx);
-    }
-    
-    // Ajout de la méthode manquante visitLambdaExpr
-    @Override
-    public Object visitLambdaExpr(JnaneLangParser.LambdaExprContext ctx) {
-        System.out.println(getIndent() + "Expression lambda: " + ctx.getText());
-        return visitChildren(ctx);
-    }
-    
-    // Ajout de la méthode manquante visitArrayLiteral
-    @Override
-    public Object visitArrayLiteral(JnaneLangParser.ArrayLiteralContext ctx) {
-        System.out.println(getIndent() + "Littéral tableau: " + ctx.getText());
-        return visitChildren(ctx);
-    }
-    
-    // Ajout de la méthode manquante visitObjectField
-    @Override
-    public Object visitObjectField(JnaneLangParser.ObjectFieldContext ctx) {
-        System.out.println(getIndent() + "Champ d'objet: " + ctx.getText());
-        return visitChildren(ctx);
-    }
-    
-    // Ajout de la méthode manquante visitObjectLiteral
-    @Override
-    public Object visitObjectLiteral(JnaneLangParser.ObjectLiteralContext ctx) {
-        System.out.println(getIndent() + "Littéral objet: " + ctx.getText());
-        return visitChildren(ctx);
-    }
-    
-    // Ajout de la méthode manquante visitArgumentList
-    @Override
-    public Object visitArgumentList(JnaneLangParser.ArgumentListContext ctx) {
-        System.out.println(getIndent() + "Liste d'arguments: " + ctx.getText());
-        return visitChildren(ctx);
-    }
-    
-    // Ajout de la méthode manquante visitFunctionCallExpr
-    @Override
-    public Object visitFunctionCallExpr(JnaneLangParser.FunctionCallExprContext ctx) {
-        System.out.println(getIndent() + "Appel de fonction: " + ctx.getText());
-        return visitChildren(ctx);
-    }
-    
-    // Ajout de la méthode manquante visitPrimaryExpr
-    @Override
-    public Object visitPrimaryExpr(JnaneLangParser.PrimaryExprContext ctx) {
-        System.out.println(getIndent() + "Expression primaire: " + ctx.getText());
-        return visitChildren(ctx);
-    }
-    
-    // Ajout de la méthode manquante visitPostfixOp
-    @Override
-    public Object visitPostfixOp(JnaneLangParser.PostfixOpContext ctx) {
-        System.out.println(getIndent() + "Opérateur postfixe: " + ctx.getText());
-        return visitChildren(ctx);
-    }
-    
-    // Ajout de la méthode manquante visitPostfixExpr
-    @Override
-    public Object visitPostfixExpr(JnaneLangParser.PostfixExprContext ctx) {
-        System.out.println(getIndent() + "Expression postfixe: " + ctx.getText());
-        return visitChildren(ctx);
-    }
-    
-    // Ajout de la méthode manquante visitUnaryExpr
-    @Override
-    public Object visitUnaryExpr(JnaneLangParser.UnaryExprContext ctx) {
-        System.out.println(getIndent() + "Expression unaire: " + ctx.getText());
-        return visitChildren(ctx);
-    }
-    
-    // Ajout de la méthode manquante visitMultiplicativeExpr
-    @Override
-    public Object visitMultiplicativeExpr(JnaneLangParser.MultiplicativeExprContext ctx) {
-        System.out.println(getIndent() + "Expression multiplicative: " + ctx.getText());
-        return visitChildren(ctx);
-    }
-    
-    // Ajout de la méthode manquante visitAdditiveExpr
-    @Override
-    public Object visitAdditiveExpr(JnaneLangParser.AdditiveExprContext ctx) {
-        System.out.println(getIndent() + "Expression additive: " + ctx.getText());
-        return visitChildren(ctx);
-    }
-    
-    // Ajout de la méthode manquante visitRelationalExpr
-    @Override
-    public Object visitRelationalExpr(JnaneLangParser.RelationalExprContext ctx) {
-        System.out.println(getIndent() + "Expression relationnelle: " + ctx.getText());
-        return visitChildren(ctx);
-    }
-    
-    // Ajout de la méthode manquante visitEqualityExpr
-    @Override
-    public Object visitEqualityExpr(JnaneLangParser.EqualityExprContext ctx) {
-        System.out.println(getIndent() + "Expression d'égalité: " + ctx.getText());
-        return visitChildren(ctx);
-    }
-    
-    // Ajout de la méthode manquante visitLogicalAndExpr
-    @Override
-    public Object visitLogicalAndExpr(JnaneLangParser.LogicalAndExprContext ctx) {
-        System.out.println(getIndent() + "Expression logique ET: " + ctx.getText());
-        return visitChildren(ctx);
-    }
-    
-    // Ajout de la méthode manquante visitLogicalOrExpr
+
     @Override
     public Object visitLogicalOrExpr(JnaneLangParser.LogicalOrExprContext ctx) {
-        System.out.println(getIndent() + "Expression logique OU: " + ctx.getText());
         return visitChildren(ctx);
     }
-    
-    // Ajout de la méthode manquante visitConditionalExpr
+
     @Override
-    public Object visitConditionalExpr(JnaneLangParser.ConditionalExprContext ctx) {
-        System.out.println(getIndent() + "Expression conditionnelle: " + ctx.getText());
+    public Object visitLogicalAndExpr(JnaneLangParser.LogicalAndExprContext ctx) {
         return visitChildren(ctx);
     }
-    
-    // Ajout de la méthode manquante visitLensExpr
+
     @Override
-    public Object visitLensExpr(JnaneLangParser.LensExprContext ctx) {
-        System.out.println(getIndent() + "Expression lens: " + ctx.getText());
+    public Object visitEqualityExpr(JnaneLangParser.EqualityExprContext ctx) {
         return visitChildren(ctx);
     }
-    
-    // Ajout de la méthode manquante visitLensOperation
+
     @Override
-    public Object visitLensOperation(JnaneLangParser.LensOperationContext ctx) {
-        System.out.println(getIndent() + "Opération lens: " + ctx.getText());
+    public Object visitRelationalExpr(JnaneLangParser.RelationalExprContext ctx) {
         return visitChildren(ctx);
     }
-    
-    // Ajout de la méthode manquante visitLensDefinition
+
     @Override
-    public Object visitLensDefinition(JnaneLangParser.LensDefinitionContext ctx) {
-        System.out.println(getIndent() + "Définition lens: " + ctx.getText());
+    public Object visitAdditiveExpr(JnaneLangParser.AdditiveExprContext ctx) {
         return visitChildren(ctx);
     }
-    
-    // Ajout de la méthode manquante visitViewOperation
+
     @Override
-    public Object visitViewOperation(JnaneLangParser.ViewOperationContext ctx) {
-        System.out.println(getIndent() + "Opération view: " + ctx.getText());
+    public Object visitMultiplicativeExpr(JnaneLangParser.MultiplicativeExprContext ctx) {
         return visitChildren(ctx);
     }
-    
-    // Ajout de la méthode manquante visitViewElement
+
     @Override
-    public Object visitViewElement(JnaneLangParser.ViewElementContext ctx) {
-        System.out.println(getIndent() + "Élément view: " + ctx.getText());
+    public Object visitUnaryExpr(JnaneLangParser.UnaryExprContext ctx) {
         return visitChildren(ctx);
     }
-    
-    // Ajout de la méthode manquante visitViewBody
+
     @Override
-    public Object visitViewBody(JnaneLangParser.ViewBodyContext ctx) {
-        System.out.println(getIndent() + "Corps view: " + ctx.getText());
+    public Object visitPostfixExpr(JnaneLangParser.PostfixExprContext ctx) {
         return visitChildren(ctx);
     }
-    
-    // Ajout de la méthode manquante visitViewDecl
+
     @Override
-    public Object visitViewDecl(JnaneLangParser.ViewDeclContext ctx) {
-        System.out.println(getIndent() + "Déclaration view: " + ctx.getText());
+    public Object visitPostfixOp(JnaneLangParser.PostfixOpContext ctx) {
         return visitChildren(ctx);
     }
-    
-    // Ajout de la méthode manquante visitNamespaceAlias
+
     @Override
-    public Object visitNamespaceAlias(JnaneLangParser.NamespaceAliasContext ctx) {
-        System.out.println(getIndent() + "Alias d'espace de noms: " + ctx.getText());
+    public Object visitPrimaryExpr(JnaneLangParser.PrimaryExprContext ctx) {
         return visitChildren(ctx);
     }
-    
-    // Ajout de la méthode manquante visitExportElement
+
     @Override
-    public Object visitExportElement(JnaneLangParser.ExportElementContext ctx) {
-        System.out.println(getIndent() + "Élément exporté: " + ctx.getText());
+    public Object visitFunctionCallExpr(JnaneLangParser.FunctionCallExprContext ctx) {
         return visitChildren(ctx);
     }
-    
-    // Ajout de la méthode manquante visitExportDecl
+
     @Override
-    public Object visitExportDecl(JnaneLangParser.ExportDeclContext ctx) {
-        System.out.println(getIndent() + "Déclaration d'export: " + ctx.getText());
+    public Object visitArgumentList(JnaneLangParser.ArgumentListContext ctx) {
         return visitChildren(ctx);
     }
-    
-    // Ajout de la méthode manquante visitImportPath
+
     @Override
-    public Object visitImportPath(JnaneLangParser.ImportPathContext ctx) {
-        System.out.println(getIndent() + "Chemin d'import: " + ctx.getText());
+    public Object visitObjectLiteral(JnaneLangParser.ObjectLiteralContext ctx) {
         return visitChildren(ctx);
     }
-    
-    // Ajout de la méthode manquante visitImportDecl
+
     @Override
-    public Object visitImportDecl(JnaneLangParser.ImportDeclContext ctx) {
-        System.out.println(getIndent() + "Déclaration d'import: " + ctx.getText());
+    public Object visitObjectField(JnaneLangParser.ObjectFieldContext ctx) {
         return visitChildren(ctx);
     }
-    
-    // Ajout de la méthode manquante visitNamespaceDecl
+
     @Override
-    public Object visitNamespaceDecl(JnaneLangParser.NamespaceDeclContext ctx) {
-        System.out.println(getIndent() + "Déclaration d'espace de noms: " + ctx.getText());
+    public Object visitArrayLiteral(JnaneLangParser.ArrayLiteralContext ctx) {
         return visitChildren(ctx);
     }
-    
-    // Ajout de la méthode manquante visitNamespaceElement
+
     @Override
-    public Object visitNamespaceElement(JnaneLangParser.NamespaceElementContext ctx) {
-        System.out.println(getIndent() + "Élément d'espace de noms: " + ctx.getText());
+    public Object visitLambdaExpr(JnaneLangParser.LambdaExprContext ctx) {
         return visitChildren(ctx);
     }
-    
-    // Ajout de la méthode manquante visitNamespaceBody
+
     @Override
-    public Object visitNamespaceBody(JnaneLangParser.NamespaceBodyContext ctx) {
-        System.out.println(getIndent() + "Corps d'espace de noms: " + ctx.getText());
+    public Object visitParamList(JnaneLangParser.ParamListContext ctx) {
         return visitChildren(ctx);
     }
-    
-    // Ajout de la méthode manquante visitNamespaceId
+
     @Override
-    public Object visitNamespaceId(JnaneLangParser.NamespaceIdContext ctx) {
-        System.out.println(getIndent() + "Identifiant d'espace de noms: " + ctx.getText());
+    public Object visitExpressionStmt(JnaneLangParser.ExpressionStmtContext ctx) {
         return visitChildren(ctx);
     }
-    
-    // Ajout de la méthode manquante visitEnumValue
+
     @Override
-    public Object visitEnumValue(JnaneLangParser.EnumValueContext ctx) {
-        System.out.println(getIndent() + "Valeur d'énumération: " + ctx.getText());
+    public Object visitBlockStmt(JnaneLangParser.BlockStmtContext ctx) {
         return visitChildren(ctx);
     }
-    
-    // Ajout de la méthode manquante visitEnumType
+
     @Override
-    public Object visitEnumType(JnaneLangParser.EnumTypeContext ctx) {
-        System.out.println(getIndent() + "Type d'énumération: " + ctx.getText());
+    public Object visitPattern(JnaneLangParser.PatternContext ctx) {
         return visitChildren(ctx);
     }
-    
-    // Ajout de la méthode manquante visitTypeAlias
+
+    // Implémentation de la méthode manquante pour la règle docAnnotation
     @Override
-    public Object visitTypeAlias(JnaneLangParser.TypeAliasContext ctx) {
-        System.out.println(getIndent() + "Alias de type: " + ctx.getText());
+    public Object visitDocAnnotation(JnaneLangParser.DocAnnotationContext ctx) {
+        System.out.println(getIndent() + "Documentation: " + ctx.getText());
         return visitChildren(ctx);
     }
-    
-    // Ajout de la méthode manquante visitTypeList
+
+    // Implémentation de la méthode pour la règle annotationSequence
     @Override
-    public Object visitTypeList(JnaneLangParser.TypeListContext ctx) {
-        System.out.println(getIndent() + "Liste de types: " + ctx.getText());
+    public Object visitAnnotationSequence(JnaneLangParser.AnnotationSequenceContext ctx) {
+        System.out.println(getIndent() + "Séquence d'annotations: " + ctx.getText());
         return visitChildren(ctx);
     }
 }
