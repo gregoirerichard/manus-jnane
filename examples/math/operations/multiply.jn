@@ -1,9 +1,9 @@
 // Fonction de multiplication dans le namespace math.operations
 
 @name math.operations:multiply
-@arg x Entier
-@arg y Entier
-@field resultat Entier
+@arg x int
+@arg y int
+@field resultat int
 
 {
     // Implémentation simple de la multiplication

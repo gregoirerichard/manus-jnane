@@ -81,11 +81,11 @@ annotationParamValue
 
 annotationValue
     : ID                  // Identifiant simple (ex: @name MaFonction)
-    | typeExpr            // Type (ex: @arg nom Chaine)
+    | typeExpr            // Type (ex: @arg nom String)
     | STRING              // Chaîne de caractères (ex: @description "Description")
     | multilineString     // Chaîne multiligne (ex: @example ```code```)
-    | ID typeExpr         // Identifiant et type (ex: @arg nom Chaine)
-    | ID typeExpr whereClause // Identifiant, type et clause where (ex: @arg age Entier where age >= 0)
+    | ID typeExpr         // Identifiant et type (ex: @arg nom String)
+    | ID typeExpr whereClause // Identifiant, type et clause where (ex: @arg age int where age >= 0)
     ;
 
 whereClause
@@ -197,8 +197,8 @@ typeExprSuffix
     ;
 
 simpleTypeExpr
-    : ID                      // Type simple (ex: Entier, Chaine)
-    | namespaceId COLON ID    // Type qualifié par namespace (ex: collections:Liste)
+    : ID                      // Type simple (ex: int, String)
+    | namespaceId COLON ID    // Type qualifié par namespace (ex: collections:List)
     | genericTypeExpr
     | functionTypeExpr
     | tupleTypeExpr
@@ -562,8 +562,8 @@ TRIPLE_QUOTE : '```';
 INTEGER : [0-9]+;
 DECIMAL : [0-9]+ '.' [0-9]+;
 STRING : '"' (~["\r\n] | '\\"')* '"';
-BOOLEAN : 'Vrai' | 'Faux';
-NULL : 'Vide';
+BOOLEAN : 'true' | 'false';  // Remplacé 'Vrai' | 'Faux' par 'true' | 'false'
+NULL : 'null';  // Remplacé 'Vide' par 'null'
 
 // Identifiants
 ID : [a-zA-Z_][a-zA-Z0-9_]*;

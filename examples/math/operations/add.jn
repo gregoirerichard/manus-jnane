@@ -1,9 +1,9 @@
 // Fonction d'addition dans le namespace math.operations
 
 @name math.operations:add
-@arg x Entier
-@arg y Entier
-@field resultat Entier
+@arg x int
+@arg y int
+@field resultat int
 
 {
     // Implémentation simple de l'addition

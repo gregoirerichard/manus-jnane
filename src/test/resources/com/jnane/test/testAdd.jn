@@ -1,6 +1,6 @@
 // Script de test pour la fonction math:add
 @name com.jnane.test:testAdd
-@field resultat Entier
+@field resultat int
 {
     // Appel de la fonction math:add avec les arguments nommés
     resultat = math:add(first: 5, second: 3);
