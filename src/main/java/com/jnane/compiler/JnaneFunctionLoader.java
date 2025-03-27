@@ -26,52 +26,39 @@ public class JnaneFunctionLoader {
         this.errors = new HashSet<>();
     }
     
-    /**
-     * Charge toutes les fonctions Jnane d'un répertoire et de ses sous-répertoires.
-     * 
-     * @param directory Répertoire à explorer
-     * @throws IOException En cas d'erreur de lecture
-     */
-    public void loadFunctionsFromDirectory(String directory) throws IOException {
-        try (Stream<Path> paths = Files.walk(Paths.get(directory))) {
-            List<Path> jnFiles = paths
-                .filter(Files::isRegularFile)
-                .filter(path -> path.toString().endsWith(".jn"))
-                .collect(Collectors.toList());
-            
-            for (Path path : jnFiles) {
-                loadFunctionFromFile(path.toString());
-            }
+   public void loadFunctionsFromDirectory(String directory) throws IOException {
+    try (Stream<Path> paths = Files.walk(Paths.get(directory))) {
+        List<Path> jnFiles = paths
+            .filter(Files::isRegularFile)
+            .filter(path -> path.toString().endsWith(".jn"))
+            .collect(Collectors.toList());
+
+        for (Path path : jnFiles) {
+            loadFunctionFromFile(path.toString(), directory);
         }
-        
-        // Vérification des cycles après le chargement de toutes les fonctions
-        detectCycles();
     }
-    
-    /**
-     * Charge une fonction Jnane à partir d'un fichier.
-     * 
-     * @param filePath Chemin du fichier
-     * @throws IOException En cas d'erreur de lecture
-     */
-    public void loadFunctionFromFile(String filePath) throws IOException {
-        if (loadedFiles.contains(filePath)) {
-            return; // Fichier déjà chargé
-        }
-        
-        String content = new String(Files.readAllBytes(Paths.get(filePath)));
-        String namespace = JnaneFileLoader.getNamespaceFromPath(filePath);
-        String functionName = JnaneFileLoader.getFunctionNameFromPath(filePath);
-        String fullName = namespace + ":" + functionName;
-        
-        // Analyse du contenu pour extraire les dépendances
-        Set<String> dependencies = extractDependencies(content);
-        
-        // Ajout de la fonction à la liste des fonctions chargées
-        functions.put(fullName, new FunctionInfo(fullName, filePath, dependencies));
-        loadedFiles.add(filePath);
+
+    // Vérification des cycles après le chargement de toutes les fonctions
+    detectCycles();
+}
+
+public void loadFunctionFromFile(String filePath, String baseDir) throws IOException {
+    if (loadedFiles.contains(filePath)) {
+        return; // Fichier déjà chargé
     }
-    
+
+    String content = new String(Files.readAllBytes(Paths.get(filePath)));
+    String namespace = JnaneFileLoader.getNamespaceFromPath(filePath).replace(baseDir.replace(File.separator, "."), "");
+    String functionName = JnaneFileLoader.getFunctionNameFromPath(filePath);
+    String fullName = namespace + ":" + functionName;
+
+    // Analyse du contenu pour extraire les dépendances
+    Set<String> dependencies = extractDependencies(content);
+
+    // Ajout de la fonction à la liste des fonctions chargées
+    functions.put(fullName, new FunctionInfo(fullName, filePath, dependencies));
+    loadedFiles.add(filePath);
+}
     /**
      * Extrait les dépendances d'une fonction à partir de son contenu.
      * 

@@ -1,5 +1,6 @@
 package com.jnane.compiler;
 
+import com.jnane.compiler.script.Script;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

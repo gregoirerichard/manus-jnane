@@ -1,6 +1,8 @@
 package com.jnane.test;
 
 import com.jnane.compiler.*;
+import com.jnane.compiler.script.Script;
+import com.jnane.compiler.script.ScriptExecutor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;

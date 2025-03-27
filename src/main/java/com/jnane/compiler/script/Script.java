@@ -1,5 +1,9 @@
-package com.jnane.compiler;
+package com.jnane.compiler.script;
 
+import com.jnane.compiler.ContextStringBuilder;
+import com.jnane.compiler.JnaneFileLoader;
+import com.jnane.compiler.JnaneLangLexer;
+import com.jnane.compiler.JnaneLangParser;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;

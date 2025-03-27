@@ -1,10 +1,11 @@
-package com.jnane.compiler;
+package com.jnane.compiler.script;
 
+import com.jnane.compiler.JnaneExpressionVisitor;
+import com.jnane.compiler.JnaneInterpreter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
