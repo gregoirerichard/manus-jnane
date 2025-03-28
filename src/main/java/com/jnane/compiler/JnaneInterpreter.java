@@ -22,6 +22,9 @@ public class JnaneInterpreter {
     // Stockage des définitions de fonctions et leurs paramètres
     private final Map<String, Set<String>> functionParameters = new HashMap<>();
     
+    // Stockage des paramètres optionnels des fonctions
+    private final Map<String, Set<String>> optionalParameters = new HashMap<>();
+    
     // Chargeur de fonctions pour la découverte dynamique
     private final JnaneFunctionLoader functionLoader;
     
@@ -107,22 +110,72 @@ public class JnaneInterpreter {
      */
     private Set<String> extractFunctionParameters(String content) {
         Set<String> params = new HashSet<>();
+        Set<String> optionalParams = new HashSet<>();
         String[] lines = content.split("\n");
+        
+        boolean nextParamIsOptional = false;
         
         for (String line : lines) {
             line = line.trim();
+            
+            // Détecter l'annotation @optional
+            if (line.startsWith("@optional")) {
+                nextParamIsOptional = true;
+                continue;
+            }
+            
             // Rechercher les annotations @name pour les arguments
             if (line.startsWith("@name ") && !line.contains(":")) {
                 String[] parts = line.substring("@name ".length()).split("\\s+", 2);
                 if (parts.length > 0) {
                     String paramName = parts[0].trim();
                     params.add(paramName);
-                    logger.debug("Paramètre trouvé: {}", paramName);
+                    
+                    // Si le paramètre est marqué comme optionnel
+                    if (nextParamIsOptional) {
+                        optionalParams.add(paramName);
+                        nextParamIsOptional = false; // Réinitialiser le flag
+                        logger.debug("Paramètre optionnel trouvé: {}", paramName);
+                    } else {
+                        logger.debug("Paramètre obligatoire trouvé: {}", paramName);
+                    }
+                }
+            } else {
+                // Si la ligne n'est pas une annotation @name, réinitialiser le flag @optional
+                // car @optional doit être juste avant @name
+                nextParamIsOptional = false;
+            }
+        }
+        
+        // Stocker les paramètres optionnels pour une utilisation ultérieure
+        String functionName = extractFunctionName(content);
+        if (functionName != null && !optionalParams.isEmpty()) {
+            optionalParameters.put(functionName, optionalParams);
+        }
+        
+        return params;
+    }
+    
+    /**
+     * Extrait le nom de la fonction à partir du contenu du fichier
+     * 
+     * @param content Contenu du fichier de fonction
+     * @return Nom de la fonction avec son namespace
+     */
+    private String extractFunctionName(String content) {
+        String[] lines = content.split("\n");
+        
+        for (String line : lines) {
+            line = line.trim();
+            if (line.startsWith("@name ") && line.contains(":")) {
+                String[] parts = line.substring("@name ".length()).split("\\s+", 2);
+                if (parts.length > 0) {
+                    return parts[0].trim();
                 }
             }
         }
         
-        return params;
+        return null;
     }
     
     /**
@@ -209,7 +262,7 @@ public class JnaneInterpreter {
      * @param functionName Nom de la fonction
      * @param namedArgs Arguments nommés de la fonction
      * @return Résultat de l'appel de fonction
-     * @throws IllegalArgumentException si un argument inconnu est fourni
+     * @throws IllegalArgumentException si un argument inconnu est fourni ou si un argument obligatoire est manquant
      */
     public Object interpretFunctionCallWithNamedArgs(String functionName, Map<String, Object> namedArgs) {
         logger.debug("Interprétation de l'appel de fonction: {} avec arguments nommés: {}", functionName, namedArgs);
@@ -227,6 +280,25 @@ public class JnaneInterpreter {
                 String errorMsg = "Argument inconnu '" + argName + "' pour la fonction '" + functionName + "'";
                 logger.error(errorMsg);
                 throw new IllegalArgumentException(errorMsg);
+            }
+        }
+        
+        // Vérifier que tous les arguments obligatoires sont présents
+        if (functionParameters.containsKey(functionName)) {
+            Set<String> requiredParams = new HashSet<>(functionParameters.get(functionName));
+            
+            // Retirer les paramètres optionnels de la liste des paramètres requis
+            if (optionalParameters.containsKey(functionName)) {
+                requiredParams.removeAll(optionalParameters.get(functionName));
+            }
+            
+            // Vérifier que tous les paramètres obligatoires sont présents
+            for (String requiredParam : requiredParams) {
+                if (!namedArgs.containsKey(requiredParam)) {
+                    String errorMsg = "Argument obligatoire '" + requiredParam + "' manquant pour la fonction '" + functionName + "'";
+                    logger.error(errorMsg);
+                    throw new IllegalArgumentException(errorMsg);
+                }
             }
         }
 
