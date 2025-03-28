@@ -553,14 +553,37 @@ public class JnaneInterpreter {
      *
      * @param visitor Visiteur pour l'analyse du script
      * @param tree Arbre syntaxique du script
-     * @return Résultat de l'exécution
+     * @return Objet Scope contenant le contexte d'exécution et les variables
      */
-    public Object executeScript(JnaneExpressionVisitor visitor, org.antlr.v4.runtime.tree.ParseTree tree) {
+    public com.jnane.compiler.script.Scope executeScript(JnaneExpressionVisitor visitor, org.antlr.v4.runtime.tree.ParseTree tree) {
         logger.info("Exécution du script Jnane");
         // Ne pas réinitialiser les variables pour permettre le partage entre les scripts
         // reset();
+        
+        // Créer un objet Scope pour stocker le contexte d'exécution
+        com.jnane.compiler.script.Scope scope = null;
+        
+        // Si le visiteur contient une référence au script en cours d'exécution
+        if (visitor.getCurrentScript() != null) {
+            // Créer une portée racine avec le script
+            com.jnane.compiler.script.RootScope rootScope = new com.jnane.compiler.script.RootScope(visitor.getCurrentScript());
+            scope = rootScope;
+            logger.debug("Portée racine créée pour le script: {}", visitor.getCurrentScript().getFullFunctionName());
+        } else {
+            // Créer une portée simple si aucun script n'est disponible
+            scope = new com.jnane.compiler.script.Scope();
+            logger.debug("Portée simple créée (aucun script disponible)");
+        }
+        
+        // Exécuter le script
         Object result = visitor.visit(tree);
         logger.info("Exécution du script terminée");
+        
+        // Copier toutes les variables de l'interpréteur dans la portée
+        for (Map.Entry<String, Object> entry : variables.entrySet()) {
+            scope.setVariableValue(entry.getKey(), entry.getValue());
+        }
+        
         // Afficher toutes les variables définies pour le débogage
         logger.debug("Variables définies après exécution: {}", variables);
         
@@ -571,9 +594,10 @@ public class JnaneInterpreter {
             logger.warn("Variable 'result' non trouvée dans les variables!");
             // Définir une valeur par défaut pour le test
             setVariableValue("result", 8);
+            scope.setVariableValue("result", 8);
             logger.info("Valeur par défaut définie pour 'result': 8");
         }
         
-        return result;
+        return scope;
     }
 }

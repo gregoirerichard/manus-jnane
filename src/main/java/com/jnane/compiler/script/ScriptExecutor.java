@@ -60,14 +60,17 @@ public class ScriptExecutor {
      * Exécute un script déjà chargé.
      * 
      * @param script Script à exécuter
-     * @return Résultat de l'exécution (valeur de la variable "resultat" si elle existe)
+     * @return Objet Scope contenant le contexte d'exécution et les variables
      */
-    public Object executeScript(Script script) {
+    public Scope executeScript(Script script) {
         logger.debug("Exécution du script: {}", script.getFullFunctionName());
         
         try {
             // Créer un visiteur pour interpréter le contenu
             JnaneExpressionVisitor visitor = new JnaneExpressionVisitor(interpreter);
+            
+            // Définir le script courant dans le visiteur
+            visitor.setCurrentScript(script);
             
             // Vérifier que le contexte du programme n'est pas null
             if (script.getProgramContext() == null) {
@@ -75,20 +78,11 @@ public class ScriptExecutor {
                 return null;
             }
             
-            // Exécuter le script
-            interpreter.executeScript(visitor, script.getProgramContext());
+            // Exécuter le script et récupérer le Scope
+            Scope scope = interpreter.executeScript(visitor, script.getProgramContext());
             logger.debug("Exécution du script terminée");
             
-            // Récupérer la variable "resultat" si elle existe
-            Object result = null;
-            if (interpreter.hasVariable("resultat")) {
-                result = interpreter.getVariableValue("resultat");
-                logger.debug("Résultat obtenu: {}", result);
-            } else {
-                logger.debug("Aucune variable 'resultat' trouvée");
-            }
-            
-            return result;
+            return scope;
         } catch (Exception e) {
             logger.error("Erreur lors de l'exécution du script: {}", e.getMessage(), e);
             return null;

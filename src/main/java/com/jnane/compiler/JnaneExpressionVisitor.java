@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import com.jnane.compiler.script.Script;
 
 /**
  * Visiteur spécialisé pour interpréter les expressions Jnane
@@ -15,10 +16,30 @@ import java.util.Set;
 public class JnaneExpressionVisitor extends JnaneLangBaseVisitor<Object> {
     private static final Logger logger = LoggerFactory.getLogger(JnaneExpressionVisitor.class);
     private final JnaneInterpreter interpreter;
+    private Script currentScript;
 
     public JnaneExpressionVisitor(JnaneInterpreter interpreter) {
         this.interpreter = interpreter;
         logger.debug("JnaneExpressionVisitor initialisé avec l'interpréteur");
+    }
+    
+    /**
+     * Définit le script en cours d'exécution.
+     * 
+     * @param script Script en cours d'exécution
+     */
+    public void setCurrentScript(Script script) {
+        this.currentScript = script;
+        logger.debug("Script courant défini: {}", script.getFullFunctionName());
+    }
+    
+    /**
+     * Retourne le script en cours d'exécution.
+     * 
+     * @return Script en cours d'exécution ou null si aucun script n'est défini
+     */
+    public Script getCurrentScript() {
+        return currentScript;
     }
 
     @Override
