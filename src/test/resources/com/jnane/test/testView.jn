@@ -1,0 +1,18 @@
+// Script de test pour vérifier le typage d'une vue
+@name com.jnane.test:testView
+@field missingReturnField
+@view success : boolean
+{
+    // Appel de la fonction math:add avec les arguments nommés
+    view = math:add(first: 5, second: 3);
+    result = math:add(first: view , second: 3);
+
+    // Vérification que le résultat est correct (11)
+    if (result == 11) {
+        print("Test réussi: (5 + 3) + 3 = " + result);
+        success = true;
+    } else {
+        print("Test échoué: (5 + 3) + 3 devrait être 11, mais a donné " + result);
+        sucess = false;
+    }
+}

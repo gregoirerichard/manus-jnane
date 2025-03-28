@@ -28,12 +28,6 @@ public class JnaneLangVisitorImpl extends AbstractParseTreeVisitor<Object> imple
     }
 
 
-    @Override
-    public Object visitAnnotationSequence(JnaneLangParser.AnnotationSequenceContext ctx) {
-        return visitChildren(ctx);
-    }
-
-
 
     // Méthode par défaut pour visiter les nœuds
     @Override

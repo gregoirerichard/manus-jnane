@@ -1,5 +1,6 @@
 // Script de test pour la fonction math:add
 @name com.jnane.test:testAdd
+@field missingReturnField
 @view success : boolean
 {
     // Appel de la fonction math:add avec les arguments nommés
