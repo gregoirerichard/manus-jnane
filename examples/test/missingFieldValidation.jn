@@ -1,0 +1,16 @@
+// Exemple de fonction avec annotations @field et @view manquantes pour tester la validation
+
+@name com.jnane.test:missingFieldValidation
+@arg first : int
+@arg second : int
+
+@field intResult : int
+@view stringView : String
+@field boolField : boolean
+
+{
+    // Définition incomplète des champs annotés - stringView manquant
+    intResult = first + second;
+    // stringView n'est pas défini intentionnellement
+    boolField = intResult > 10;
+}

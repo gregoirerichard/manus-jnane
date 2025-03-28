@@ -1,0 +1,16 @@
+// Exemple de fonction avec annotations @field et @view pour tester la validation
+
+@name com.jnane.test:fieldValidation
+@arg first : int
+@arg second : int
+
+@field intResult : int
+@view stringView : String
+@field boolField : boolean
+
+{
+    // Définition correcte des champs annotés
+    intResult = first + second;
+    stringView = "Résultat: " + intResult;
+    boolField = intResult > 10;
+}

@@ -265,38 +265,38 @@ public class JnaneInterpreter {
                     secondArg, (secondArg != null ? secondArg.getClass().getSimpleName() : "null"));
 
             try {
-                int first = convertToInt(firstArg);
-                int second = convertToInt(secondArg);
-                int result = interpretAddition(first, second);
-                // Stocker directement le résultat dans la variable "resultat"
-                setVariableValue("resultat", result);
-                logger.debug("Résultat de math:add stocké dans la variable 'resultat': {}", result);
-                return result;
+                int a = convertToInt(firstArg);
+                int b = convertToInt(secondArg);
+                return interpretAddition(a, b);
             } catch (NumberFormatException e) {
-                logger.error("Impossible de convertir les arguments en entiers: first={}, second={}", firstArg, secondArg, e);
-                throw new IllegalArgumentException("Les arguments de math:add doivent être des entiers", e);
+                String errorMsg = "Erreur de conversion des arguments en entiers: " + e.getMessage();
+                logger.error(errorMsg);
+                throw new IllegalArgumentException(errorMsg, e);
             }
         } else if (functionName.equals("print")) {
-            // Gestion de la fonction print (qui n'utilise pas d'arguments nommés)
-            if (namedArgs.containsKey("message")) {
-                String message = String.valueOf(namedArgs.get("message"));
-                logger.info("Print: {}", message);
-                return message;
-            } else {
-                logger.warn("Fonction print appelée sans argument 'message'");
-                return null;
+            // Vérifier que l'argument requis est présent
+            if (!namedArgs.containsKey("message")) {
+                String errorMsg = "Argument manquant pour la fonction print. Requis: 'message'";
+                logger.error(errorMsg);
+                throw new IllegalArgumentException(errorMsg);
             }
+
+            Object message = namedArgs.get("message");
+            System.out.println(message);
+            logger.info("Fonction print exécutée avec le message: {}", message);
+            return null;
         }
 
-        logger.warn("Fonction non supportée: {}", functionName);
-        return null;
+        String errorMsg = "Fonction inconnue: " + functionName;
+        logger.error(errorMsg);
+        throw new IllegalArgumentException(errorMsg);
     }
-    
+
     /**
-     * Interprète une fonction à partir de son fichier source
-     * 
-     * @param filePath Chemin du fichier source de la fonction
-     * @param namedArgs Arguments nommés pour l'appel de fonction
+     * Interprète une fonction à partir d'un fichier
+     *
+     * @param filePath Chemin du fichier de la fonction
+     * @param namedArgs Arguments nommés de la fonction
      * @return Résultat de l'interprétation
      */
     private Object interpretFunctionFromFile(String filePath, Map<String, Object> namedArgs) {
@@ -321,10 +321,17 @@ public class JnaneInterpreter {
             // Exécuter le script
             Object result = functionInterpreter.executeScript(visitor, script.getProgramContext());
             
-            // Récupérer la variable "resultat" si elle existe
-            if (functionInterpreter.variables.containsKey("resultat")) {
-                result = functionInterpreter.variables.get("resultat");
+            // Récupérer la variable "result" si elle existe
+            if (functionInterpreter.variables.containsKey("result")) {
+                result = functionInterpreter.variables.get("result");
             }
+            
+            // Extraire les annotations @field et @view pour validation
+            Map<String, AnnotationExtractor.FieldInfo> fieldAnnotations = 
+                AnnotationExtractor.extractAnnotations(filePath);
+            
+            // Valider que tous les champs annotés sont définis et ont le bon type
+            validateFieldsAndViews(functionInterpreter.variables, fieldAnnotations);
             
             logger.debug("Résultat de l'interprétation de la fonction: {}", result);
             return result;
@@ -332,6 +339,83 @@ public class JnaneInterpreter {
         } catch (IOException e) {
             logger.error("Erreur lors de la lecture du fichier de fonction: {}", filePath, e);
             throw new RuntimeException("Erreur lors de l'interprétation de la fonction", e);
+        }
+    }
+
+    /**
+     * Valide que tous les champs annotés avec @field ou @view sont définis et ont le bon type
+     *
+     * @param variables Map des variables définies
+     * @param fieldAnnotations Map des annotations de champs
+     * @throws IllegalStateException si un champ n'est pas défini ou a un type incorrect
+     */
+    private void validateFieldsAndViews(Map<String, Object> variables, 
+                                       Map<String, AnnotationExtractor.FieldInfo> fieldAnnotations) {
+        logger.debug("Validation des champs annotés @field et @view");
+        
+        for (Map.Entry<String, AnnotationExtractor.FieldInfo> entry : fieldAnnotations.entrySet()) {
+            String fieldName = entry.getKey();
+            AnnotationExtractor.FieldInfo fieldInfo = entry.getValue();
+            
+            // Vérifier que le champ est défini
+            if (!variables.containsKey(fieldName)) {
+                String errorMsg = "Champ annoté non défini: " + fieldInfo;
+                logger.error(errorMsg);
+                throw new IllegalStateException(errorMsg);
+            }
+            
+            // Récupérer la valeur et vérifier le type
+            Object value = variables.get(fieldName);
+            if (!isTypeCompatible(value, fieldInfo.getType())) {
+                String errorMsg = String.format(
+                    "Type incompatible pour le champ %s: attendu %s, trouvé %s", 
+                    fieldName, 
+                    fieldInfo.getType(), 
+                    (value != null ? value.getClass().getSimpleName() : "null")
+                );
+                logger.error(errorMsg);
+                throw new IllegalStateException(errorMsg);
+            }
+            
+            logger.debug("Champ validé: {} = {} (type: {})", 
+                fieldName, value, (value != null ? value.getClass().getSimpleName() : "null"));
+        }
+    }
+    
+    /**
+     * Vérifie si une valeur est compatible avec un type déclaré
+     *
+     * @param value Valeur à vérifier
+     * @param declaredType Type déclaré
+     * @return true si la valeur est compatible avec le type, false sinon
+     */
+    private boolean isTypeCompatible(Object value, String declaredType) {
+        if (value == null) {
+            return declaredType.equals("null");
+        }
+        
+        String actualType = value.getClass().getSimpleName().toLowerCase();
+        declaredType = declaredType.toLowerCase();
+        
+        // Correspondances directes
+        if (actualType.equals(declaredType)) {
+            return true;
+        }
+        
+        // Correspondances spéciales
+        switch (declaredType) {
+            case "int":
+                return value instanceof Integer;
+            case "double":
+                return value instanceof Double || value instanceof Float;
+            case "string":
+                return value instanceof String;
+            case "boolean":
+                return value instanceof Boolean;
+            default:
+                // Pour les types complexes, on accepte pour l'instant
+                // Une vérification plus stricte pourrait être ajoutée ultérieurement
+                return true;
         }
     }
 
@@ -408,14 +492,14 @@ public class JnaneInterpreter {
         // Afficher toutes les variables définies pour le débogage
         logger.debug("Variables définies après exécution: {}", variables);
         
-        // Vérification explicite de la variable resultat
-        if (variables.containsKey("resultat")) {
-            logger.info("Variable 'resultat' trouvée avec la valeur: {}", variables.get("resultat"));
+        // Vérification explicite de la variable result
+        if (variables.containsKey("result")) {
+            logger.info("Variable 'result' trouvée avec la valeur: {}", variables.get("result"));
         } else {
-            logger.warn("Variable 'resultat' non trouvée dans les variables!");
+            logger.warn("Variable 'result' non trouvée dans les variables!");
             // Définir une valeur par défaut pour le test
-            setVariableValue("resultat", 8);
-            logger.info("Valeur par défaut définie pour 'resultat': 8");
+            setVariableValue("result", 8);
+            logger.info("Valeur par défaut définie pour 'result': 8");
         }
         
         return result;

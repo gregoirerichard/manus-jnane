@@ -1,0 +1,16 @@
+// Exemple de fonction avec annotations @field et @view avec type incorrect pour tester la validation
+
+@name com.jnane.test:wrongTypeValidation
+@arg first : int
+@arg second : int
+
+@field intResult : int
+@view stringView : String
+@field boolField : boolean
+
+{
+    // Définition des champs avec types incorrects
+    intResult = first + second;
+    stringView = intResult; // Erreur: assigne un int à un champ de type String
+    boolField = true;
+}
