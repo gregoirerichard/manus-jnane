@@ -1,15 +1,15 @@
-@name test:test_script
+@name com.jnane.test.annotation.optional:test_script
 
 @description "Script de test pour l'annotation @optional"
 
 // Test avec tous les paramètres
-let resultat1 = test:test_function(requiredParam: 10, optionalParam: 5)
+let resultat1 = com.jnane.test.annotation:test_function(requiredParam: 10, optionalParam: 5)
 print("Test avec tous les paramètres: " + resultat1)
 
 // Test avec seulement le paramètre obligatoire
-let resultat2 = test:test_function(requiredParam: 10)
+let resultat2 = com.jnane.test.annotation:test_function(requiredParam: 10)
 print("Test avec seulement le paramètre obligatoire: " + resultat2)
 
 // Test avec paramètre obligatoire manquant (devrait générer une erreur)
 // Décommentez la ligne suivante pour tester l'erreur
-// let resultat3 = test:test_function(optionalParam: 5)
+// let resultat3 = com.jnane.test.annotation:test_function(optionalParam: 5)

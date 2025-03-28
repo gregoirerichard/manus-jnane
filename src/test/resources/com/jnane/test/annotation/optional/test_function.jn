@@ -1,0 +1,14 @@
+@name test:test_function
+
+@description "Fonction de test pour l'annotation @optional"
+
+@name result : int
+
+@name @optional optionalParam : int
+
+@name requiredParam : int
+
+{
+    // Corps de la fonction
+    requiredParam + (optionalParam ?? 0)
+}
